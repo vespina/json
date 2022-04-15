@@ -209,7 +209,7 @@ The *resp* object contains the following properties:
 
 ### CHANGE HISTORY
 
-|Date.        |User|Description|
+|Date         |User|Description|
 |-------------|----|-----------|
 |Abr 6, 2022  |VES |Nuevos metodos *httpRequest()* y *httpPost()*. Refactorizacion del metodo *httpGet()*. Mejora en metodo *ParseXML()* para tolerar el caracter "-" en nombres de nodo o atributos.|
 |May 29, 2019 |VES |Se corrigio el problema con el metodo *ToCursor()* (agradecimiento especial a Fernando Puyuelo) Soporte para mensajes en espanol (por Fernando Puyuelo)|
@@ -226,7 +226,7 @@ The *resp* object contains the following properties:
 |May 30, 2015 |VES |Minor fixes on *Parse()* method for constant values like true, false or null|
 |May 3, 2015  |VES |Backward compatibility with previous versions of VFP (6+)|
 |May 2, 2015  |VES |Changes in *Stringify()* method to avoid errors while stringifying SCX files content. New property *lastOpTime* in *json* class. Changes in *Stringify()*, *Parse()* and *ParseCursor()* methods to implement *lastOpTime* property. Changes in *Parse()* method to support expression values|
-|May 1, 2015. |VES |*cursorSchemas* property on *json* class renamed to *Schemas*. *cursorSchemas* class renamed to *jsonSchemas*. New method *Create()* in *jsonSchemas* class. New error (22). Several changes in *jsonError* class. Changed *initWithDefault()* with *initWithEx()* for CATCH error handling|
+|May 1, 2015 |VES |*cursorSchemas* property on *json* class renamed to *Schemas*. *cursorSchemas* class renamed to *jsonSchemas*. New method *Create()* in *jsonSchemas* class. New error (22). Several changes in *jsonError* class. Changed *initWithDefault()* with *initWithEx()* for CATCH error handling|
 |Apr 30, 2015 |VES |New method *toCursor()* in *json* class. New method *initWithValue()* in *jsonColumn*. Changes in *jsonColumn* class's constructor. New error (21). New optional parameter *pnDSID* in *parseCursor()* method of *json* class. New optional parameter *pnDSID* in *Stringify()* method of *json* class. New optional parameter *pnDSID* in *newFromCursor()* method of *jsonScheme* class|
 |Apr 10, 2015 |VES |New method *initWithJSON()* in *jsonSchema*. Update to *ToString()* method in *jsonColumn* and *jsonSchema* to support JSON format. Update to *Stringif()* in *json* class to optional include the schema when stringifying a cursor. New method *parseCursor()* in *json* class. New method *initWithString()* in *jsonError* class. New errors (16 to 20). New property *useStrictNotation* in *json* class.|
 | 2015		   |AFG	|Multiple changes and fixes.  Schemas implementation.|
