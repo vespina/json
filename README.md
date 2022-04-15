@@ -124,7 +124,7 @@ The full syntax of *httpGet()* is:
 Multiple headers can be passed using CRLF to separate them.
 
 
-#### httpPost()
+#### httpPost
 This method allows to send information to a webservice and receive an answert in either JSON or XML format. In boths cases, the method returns an object that represents the received information:
 
     #DEFINE CRLF  CHR(13)+CHR(10)
@@ -149,7 +149,7 @@ The full syntax of *httpPost()* is:
 Multiple headers can be passed using CRLF to separate them. The *uData* parameter can be an string or an object.
 
 
-#### httpRequest()
+#### httpRequest
 This method allows to send any kind of REST request to a webservice and receive an answer in either JSON or XML format.  Both *httpGet()* and *httpPost()* methods calls this method internaly.  The full sytax is:
 
     resp = JSON.httpRequest(cVerb, cUrl [,uData], [,cContentType] [,cHeaders] [,nTimeout[)
