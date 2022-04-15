@@ -1,0 +1,75 @@
+# Contine la lista de los archivos y carpetas a ignorar
+# Ignorar proyecto
+*.pjx
+*.PJX
+*.pjt
+*.PJT
+
+# Ignorar todos los programas compilados, fomularios, menues y clases
+*.scx
+*.sct
+*.SCX
+*.SCT
+*.mnt
+*.MNT
+*.mnx
+*.MNX
+*.mpr
+*.MPR
+*.vct
+*.VCT
+*.vcx
+*.VCX
+*.fxp
+*.FXP
+
+# Ignorar bases de datos, tablas, indices
+*.dbf
+*.DBF
+*.cdx
+*.CDX
+*.dbc
+*.DBC
+*.dct
+*.DCT
+*.fpt
+*.FPT
+*.dcx
+*.DCX
+*.irt
+*.IRT
+*.tbk
+*.TBK
+
+# Ignorar reportes
+*.frx
+*.FRX
+*.frt
+*.FRT
+
+# Ignorar archivos temporales
+*.bak
+*.BAK
+
+
+# Varios
+*.exe
+*.EXE
+*.app
+*.APP
+*.ERR
+*.err
+*.rar
+*.RAR
+*.zip
+*.ZIP
+.DS_Store
+/IMG/Thumbs.db
+*.DLL
+*.dll
+
+test*.*
+p*.*
+*.dat
+*.xml
+*.json
