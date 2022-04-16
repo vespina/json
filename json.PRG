@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.16
+* Version: 1.17
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -131,6 +131,8 @@
 *
 *
 * CHANGE HISTORY
+* Abr 16, 2022  VES     Support for NQInclude to automatically download any dependencies.
+*
 * Abr 6, 2022   VES     Nuevos metodos httpRequest() y httpPost(). Refactorizacion del metodo httpGet(). Mejora en
 *                       metodo ParseXML() para tolerar el caracter "-" en nombres de nodo o atributos.
 *
@@ -161,8 +163,7 @@
 * Aug 12, 2015	VES		New httpGet() method. Small change in Beautify() method to ensure backward compatibility.
 *
 * May 30, 2015  VES		Minor fixes on Parse method for constant values like true, false or null
-*
-* May 3, 2015	VES		Backward compatibility with previous versions of VFP (6+)
+** May 3, 2015	VES		Backward compatibility with previous versions of VFP (6+)
 *
 * May 2, 2015	VES		Changes in Stringify method to avoid errors while stringifying SCX files content.
 *						New property lastOpTime in json class

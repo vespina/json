@@ -10,10 +10,13 @@ Author: V. Espina / A. Ferreira
 ### BASIC USAGE
 
 #### Load the library
-Simplt addd this code at the begining of your main program:
+Simply addd this code at the begining of your main program:
 
     DO json
     
+The first time the library is ran, it will automatically download some dependencies from the Internet, so its
+better if you run DO JSON one time from your VFP's command line.    
+ 
 #### To parse a JSON string
     LOCAL oPerson
     oPerson = JSON.Parse('{ "firstName": "Victor", "lastName": "Espina", "YOB": 1970 }')
@@ -211,6 +214,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+[Apr 16, 2022 |VES |Support for NQInclude to automatically download any dependencies.]
 |Abr 6, 2022  |VES |Nuevos metodos *httpRequest()* y *httpPost()*. Refactorizacion del metodo *httpGet()*. Mejora en metodo *ParseXML()* para tolerar el caracter "-" en nombres de nodo o atributos.|
 |May 29, 2019 |VES |Se corrigio el problema con el metodo *ToCursor()* (agradecimiento especial a Fernando Puyuelo) Soporte para mensajes en espanol (por Fernando Puyuelo)|
 |May 6, 2019  |AFG |Error en methodo *initWithEx()* de clase *JSONError* que usaba incorrectamente el no. de error 1525 para identificar errores de ODBC.|
