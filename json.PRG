@@ -198,7 +198,7 @@
 *
 
 IF NOT FILE("nqinclude.prg")
-	STRTOFILE(GETURL("https://raw.githubusercontent.com/vespina/nqinclude/main/nqinclude.prg","nqinclude.prg")
+	STRTOFILE(GETURL("https://raw.githubusercontent.com/vespina/nqinclude/main/nqinclude.prg"),"nqinclude.prg")
 	IF NOT FILE("nqinclude.prg")
 		MESSAGEBOX("This library requires NQINCLUDE.PRG wich could not be downloaded at this time",48,"JSON.PRG")
 		RETURN
