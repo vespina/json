@@ -201,18 +201,16 @@ IF NOT FILE("nqinclude.prg")
 	STRTOFILE(GETURL("https://raw.githubusercontent.com/vespina/nqinclude/main/nqinclude.prg"),"nqinclude.prg")
 	IF NOT FILE("nqinclude.prg")
 		MESSAGEBOX("This library requires NQINCLUDE.PRG wich could not be downloaded at this time",48,"JSON.PRG")
-		RETURN
+		CANCEL
 	ENDIF
-	MESSAGEBOX("This library requires NQINCLUDE.PRG library wich has been automatically downloaded. Please, erase JSON.FXP file and try again",48,"JSON.PRG")
-	RETURN
 ENDIF
 
 IF !FILE("vfplegacy.prg") OR !FILE("vfplegacy.h")
 	IF NOT NQInclude("vfplegacy") 
-		RETURN
+		CANCEL
 	ENDIF
 	MESSAGEBOX("This library requires VFPLEGACY.PRG library wich has been automatically downloaded. Please, erase JSON.FXP file and try again",48,"JSON.PRG")
-	RETURN
+	CANCEL
 ENDIF
 
 #DEFINE VFP_JSON_LANG		        "EN"    && Cambiar a ES para mensajes en espanol
