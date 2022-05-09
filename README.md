@@ -1,7 +1,7 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.16
+Version: 1.17
 
 Author: V. Espina / A. Ferreira
 
@@ -214,7 +214,8 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
-[Apr 16, 2022 |VES |Support for NQInclude to automatically download any dependencies.]
+|May 9, 2022  |VES |New version 1.17. Includes fixes on toCursor method for legacy VFP versions.|
+|Apr 16, 2022 |VES |Support for NQInclude to automatically download any dependencies.|
 |Abr 6, 2022  |VES |Nuevos metodos *httpRequest()* y *httpPost()*. Refactorizacion del metodo *httpGet()*. Mejora en metodo *ParseXML()* para tolerar el caracter "-" en nombres de nodo o atributos.|
 |May 29, 2019 |VES |Se corrigio el problema con el metodo *ToCursor()* (agradecimiento especial a Fernando Puyuelo) Soporte para mensajes en espanol (por Fernando Puyuelo)|
 |May 6, 2019  |AFG |Error en methodo *initWithEx()* de clase *JSONError* que usaba incorrectamente el no. de error 1525 para identificar errores de ODBC.|

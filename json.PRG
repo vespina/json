@@ -129,84 +129,7 @@
 *     this if you plan to recreate the cursor later from the JSON string.
 *
 *
-*
-* CHANGE HISTORY
-* Abr 16, 2022  VES     Support for NQInclude to automatically download any dependencies.
-*
-* Abr 6, 2022   VES     Nuevos metodos httpRequest() y httpPost(). Refactorizacion del metodo httpGet(). Mejora en
-*                       metodo ParseXML() para tolerar el caracter "-" en nombres de nodo o atributos.
-*
-* May 29, 2019  VES     Se corrigio el problema con el metodo ToCursor (agradecimiento especial a Fernando Puyuelo)
-*                       Soporte para mensajes en espanol (por Fernando Puyuelo)
-*
-* May 6, 2019   AFG     Error en methodo initWithEx de clase JSONError que usaba incorrectamente
-*                       el no. de error 1525 para identificar errores de ODBC.
-*
-* Abr 25, 2017	VES		Nueva propiedad stringSeparator
-*
-* Jul 20, 2016	VES		Obviar caracters TAB en el analisis
-*
-* May 16, 2016  VES		Correcciones menores en metodo Stringify
-*
-* Dec 18, 2015	VES		SingletonPattern class renamed to JSONSingletonPattern
-*
-* Sep 11, 2015  VES     Improves in stringify method for versions of VFP with no Empty class.
-*
-* Aug 24, 2015  VES		Improves in parseXml() method to handle repetitive sibling nodes as arrays.
-*
-* Aug 22, 2015  VES     New improved httpGet() method with XML support
-*                       New ParseXml() method
-*                       New ToXml() method
-*
-* Aug 20, 2015  VES		Fix on _parse method for date values handling
-*
-* Aug 12, 2015	VES		New httpGet() method. Small change in Beautify() method to ensure backward compatibility.
-*
-* May 30, 2015  VES		Minor fixes on Parse method for constant values like true, false or null
-** May 3, 2015	VES		Backward compatibility with previous versions of VFP (6+)
-*
-* May 2, 2015	VES		Changes in Stringify method to avoid errors while stringifying SCX files content.
-*						New property lastOpTime in json class
-*						Changes in Stringify, Parse and ParseCursor methods to implement lastOpTime property
-*                       Changes in Parse method to support expression values
-*
-* May 1, 2015	VES		cursorSchemas property on json class renamed to Schemas
-*						cursorSchemas class renamed to jsonSchemas
-*						New method Create in jsonSchemas class
-*						New error (22)
-*						Several changes in jsonError class
-*						Changed initWithDefault with initWithEx for CATCH error handling
-*
-* Apr 30, 2015  VES		New method toCursor in json class
-*                       New method initWithValue in jsonColumn
-* 						Changes in jsonColumn constructor
-*						New error (21)
-*						New optional parameter pnDSID in parseCursor method of json class
-*						New optional parameter pnDSID in Stringify method of json class
-*						New optional parameter pnDSID in newFromCursor method of jsonScheme class
-*
-* Apr 10, 2015	VES		New method initWithJSON in jsonSchema
-*						Update to ToString method in jsonColumn and jsonSchema to support JSON format
-*						Update to Stringify in json class to optional include the schema when stringifying a cursor
-*						New method parseCursor in json class
-*						New method initWithString in jsonError class
-*						New errors (16 to 20)
-*						New property useStrictNotation in json class
-*
-* 2015		    AFG		Multiple changes and fixes.  Schemas implementation.
-*
-* 2014			VES		Initial version
-*
 
-checkForNQInclude()
-
-IF !FILE("vfplegacy.prg") OR !FILE("vfplegacy.h")
-	IF NOT NQInclude("vfplegacy") 
-		CANCEL
-	ENDIF
-	MESSAGEBOX("This library requires VFPLEGACY.PRG library wich has been automatically downloaded. Please, erase JSON.FXP file and try again",48,"JSON.PRG")
-	CANCEL
-ENDIF
 
 #DEFINE VFP_JSON_LANG		        "EN"    && Cambiar a ES para mensajes en espanol
 #DEFINE VFP_NOENCODABLE_PROPS		"-controls-controlcount-objects-parent-class-baseclass-classlibrary-parentclass-helpcontextid-whatsthishelpid-top-left-width-height-picture-_customproplist-activecontrol-activeform-forms-"
@@ -264,9 +187,25 @@ ENDIF
 #ENDIF
 
 
+
+
+* Check for NQInclude utility (it will be downloaded if necessary).
+checkForNQInclude()
+
+* Check for dependencies
+IF !FILE("vfplegacy.prg") OR !FILE("vfplegacy.h")
+	IF NOT NQInclude("vfplegacy") 
+		CANCEL
+	ENDIF
+	MESSAGEBOX("This library requires VFPLEGACY.PRG library wich has been automatically downloaded. Please, erase JSON.FXP file and try again",48,"JSON.PRG")
+	CANCEL
+ENDIF
+
+
 #INCLUDE vfplegacy.h
 
 
+* Load the library into mnemory
 SET PROCEDURE TO json ADDITIVE
 SET PROCEDURE TO vfplegacy ADDITIVE
 
@@ -274,6 +213,7 @@ PUBLIC json
 json = CREATEOBJECT("json")
 
 RETURN
+
 
 
 * json (Class)
@@ -1159,15 +1099,26 @@ DEFINE CLASS json AS Custom
 	  SET DATASESSION TO (pnDSID)
 	 ENDIF
 	 
-	 * Determine the cursor structure by analizing the first element
-	 LOCAL oRow,nCount,i,cProp,uValue,oSchema,oColumn,oObjProps
+	 * Determine the cursor structure by analizing the first element. We also
+	 * create an instance of the element's baseclass, to rule out inhereted
+	 * properties.
+	 LOCAL oRow,nCount,i,cProp,uValue,oSchema,oColumn,oObjProps,oBase
 	 LOCAL ARRAY aProps[1]
 	 oRow = poJSON.Item[1]
+	 IF TYPE("oRow.baseClass") = "C"
+	 	oBase = CREATE(oRow.baseClass)
+	 ELSE
+	 	oBase = NULL
+	 ENDIF
 	 oSchema = CREATEOBJECT("jsonSchema")
 	 oObjProps = CREATEOBJECT("Collection")
-	 nCount = AMEMBERS(aProps, oRow, 0)
+	 nCount = AMEMBERS(aProps, oRow)
 	 FOR i = 1 TO nCount
 	  cProp = LOWER(aProps[i])
+	  IF (!ISNULL(oBase) AND TYPE("oBase." + cProp)<>"U") ;
+	  OR INLIST(UPPER(cProp),"PARENT")
+	  	LOOP
+	  ENDIF
 	  uValue = GETPEM(oRow, cProp)
 	  oColumn = CREATEOBJECT("jsonColumn")
 	  oColumn.initWithValue(uValue, cProp)
@@ -1196,6 +1147,9 @@ DEFINE CLASS json AS Custom
 	  APPEND BLANK
 	  GATHER NAME oRow
 	  FOR j = 1 TO oObjProps.Count
+	   IF INLIST(UPPER(cProp),"PARENT")
+	      LOOP
+	   ENDIF
 	   cProp = oObjProps.Item[j]
 	   uValue = GETPEM(oRow, cProp)
 	   cType = VARTYPE(uValue)
