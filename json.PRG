@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.17
+* Version: 1.18
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -373,11 +373,11 @@ DEFINE CLASS json AS Custom
 	          nMode = 1
 	          uBuff = cChar
 	          
-	     CASE nMode = 1 AND !THIS.isAlpha(cChar) AND !ISDIGIT(cChar) AND !INLIST(cChar,":",SPACE(1),cStringSep)  && Invalid char in property mode
+	     CASE nMode = 1 AND !THIS.isAlpha(cChar) AND !ISDIGIT(cChar) AND !INLIST(cChar,":",SPACE(1),cStringSep,"-")  && Invalid char in property mode
 	          THROW(VFP_JSON_MSG_013 + " (" + SUBSTR(pcJSON, i - 10, 10) + " -->" + cChar + "<-- " + SUBSTR(pcJSON,i+1,20) + ") " + TRANSFORM(lIsString,"") + " " + TRANSFORM(uBuff,""))
 	          
 	     CASE  !INLIST(cChar, cStringSep, ":", SPACE(1)) AND nMode = 1  && Property name
-	          uBuff = uBuff + cChar
+	          uBuff = uBuff + CHRTRAN(cChar,"-","_")
 	          
 	     CASE cChar = ":" AND nMode = 1   && Close property name
 	          cProp = ALLTRIM(uBuff)
@@ -2460,6 +2460,10 @@ DEFINE CLASS jsonColumn AS CUSTOM
        CASE cType = "O"
             THIS.Type = "M"
 
+       OTHERWISE
+            THIS.Type = "C"
+            THIS.Long = 254
+
     ENDCASE
    ENDPROC
    
@@ -2479,9 +2483,11 @@ DEFINE CLASS jsonColumn AS CUSTOM
    		 cText = STRT(cText, "{3}", ALLTRIM(STR(THIS.Dec)))
    		ELSE
 			WITH THIS
-			 cText = .name + " " + .type + IIF(.type = "C", "(" + ALLT(STR(.long)) + ")",;
-			                               IIF(.type $ "NF", "(" + ALLT(STR(.long)) + "," + ALLT(STR(.dec)) + ")",;
-			                               IIF(.type = "B", "(" + ALLT(STR(.dec)) + ")", "")))
+			 cText = .name + " " + ;
+			         .type + IIF(.type = "C", "(" + ALLT(STR(.long)) + ")",;
+			                 IIF(.type $ "NF", "(" + ALLT(STR(.long)) + "," + ALLT(STR(.dec)) + ")",;
+			                 IIF(.type = "B", "(" + ALLT(STR(.dec)) + ")", ""))) + ;
+			         " NULL"
 			ENDWITH 
 		ENDIF	
 		RETURN cText 

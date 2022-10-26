@@ -214,6 +214,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|Oct 26, 2022 |VES |Changes on jsonColumn class to support null values |
 |May 9, 2022  |VES |New version 1.17. Includes fixes on toCursor method for legacy VFP versions.|
 |Apr 16, 2022 |VES |Support for NQInclude to automatically download any dependencies.|
 |Abr 6, 2022  |VES |Nuevos metodos *httpRequest()* y *httpPost()*. Refactorizacion del metodo *httpGet()*. Mejora en metodo *ParseXML()* para tolerar el caracter "-" en nombres de nodo o atributos.|

@@ -73,3 +73,6 @@ p*.*
 *.dat
 *.xml
 *.json
+/nqinclude.prg
+/vfplegacy.h
+/vfplegacy.prg
