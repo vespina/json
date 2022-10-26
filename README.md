@@ -1,7 +1,7 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.17
+Version: 1.18
 
 Author: V. Espina / A. Ferreira
 
