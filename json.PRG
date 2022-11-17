@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.18
+* Version: 1.19
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -1346,7 +1346,8 @@ DEFINE CLASS json AS Custom
 		ex = NULL
 		oHTTP = NULL
 	    _TRY
-	       oHTTP = CREATEOBJECT("MSXML2.XMLHTTP")
+	       *oHTTP = CREATEOBJECT("MSXML2.XMLHTTP")
+	       oHTTP = CREATEOBJECT("Msxml2.ServerXMLHTTP.6.0")
 	    _CATCH
 	       THIS.lastError.initWithEx(ex)
 	    _ENDTRY
@@ -1359,6 +1360,7 @@ DEFINE CLASS json AS Custom
 		LOCAL cResponse
 		cResponse = ""
 		_TRY
+		    oHTTP.setOption(2) = 13056    && IGNORE CERTIFICATE ERRORS
 		    oHTTP.open(pcVerb, pcUrl, .F.)
 		    IF NOEX() AND INLIST(UPPER(pcVerb),"POST","PUT") AND !EMPTY(puData)
 		    	oHTTP.setRequestHeader("Content-Type", "application/json")
