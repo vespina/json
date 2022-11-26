@@ -1,7 +1,7 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.19
+Version: 1.20
 
 Author: V. Espina / A. Ferreira
 
@@ -66,7 +66,23 @@ can be checked using json.lastError object:
       ?"Details", json.lastError.Details
     ENDIF
 
- 
+
+### NEW FAST PARSER MODE
+IF you need to parse a large JSON string, you can now activate a fast parser mode, that will parse
+the JSON much more faster than using the normal VFP-base parser. To activate this mode, just add this
+command before the call to the Parse method:
+
+    JSON.fastParseMode = .T.
+    
+Take in consideration that when using the fast parser, the resulting object will be a JS object instead
+of a VFP object. As consequence, arrays are returned as JS arrays and not as a VFP collection, so the 
+only way to interact with it is using FOR EACH:
+
+    FOR EACH oElem IN jsonData.arrayProperty
+       * Here you can access element's properties
+    ENDFOR
+    
+     
 
 ### CURSORS HANDLING
 JSON library can convert a data cursor into a JSON string representation, optionally
@@ -214,28 +230,29 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
-|Nov 16, 2022 |VES |New version 1.19. Changes to allow access to secured servers|
-|Oct 26, 2022 |VES |New version 1.18. Changes on jsonColumn class to support null values |
-|May 9, 2022  |VES |New version 1.17. Includes fixes on toCursor method for legacy VFP versions.|
-|Apr 16, 2022 |VES |Support for NQInclude to automatically download any dependencies.|
-|Abr 6, 2022  |VES |Nuevos metodos *httpRequest()* y *httpPost()*. Refactorizacion del metodo *httpGet()*. Mejora en metodo *ParseXML()* para tolerar el caracter "-" en nombres de nodo o atributos.|
-|May 29, 2019 |VES |Se corrigio el problema con el metodo *ToCursor()* (agradecimiento especial a Fernando Puyuelo) Soporte para mensajes en espanol (por Fernando Puyuelo)|
-|May 6, 2019  |AFG |Error en methodo *initWithEx()* de clase *JSONError* que usaba incorrectamente el no. de error 1525 para identificar errores de ODBC.|
-|Abr 25, 2017 |VES |Nueva propiedad *stringSeparator*|
-|Jul 20, 2016 |VES |Obviar caracters TAB en el analisis|
-|May 16, 2016 |VES |Correcciones menores en metodo *Stringify()*|
-|Dec 18, 2015 |VES |*SingletonPattern* class renamed to *JSONSingletonPattern*|
-|Sep 11, 2015 |VES |Improves in *Stringify()* method for versions of VFP with no Empty class.|
-|Aug 24, 2015 |VES |Improves in parseXml() method to handle repetitive sibling nodes as arrays.|
-|Aug 22, 2015 |VES |New improved *httpGet()* method with XML support. New *ParseXml()* method. New *ToXml()* method|
-|Aug 20, 2015 |VES |Fix on *_parse()* method for date values handling|
-|Aug 12, 2015 |VES |New *httpGet()* method. Small change in *Beautify()* method to ensure backward compatibility.|
-|May 30, 2015 |VES |Minor fixes on *Parse()* method for constant values like true, false or null|
-|May 3, 2015  |VES |Backward compatibility with previous versions of VFP (6+)|
-|May 2, 2015  |VES |Changes in *Stringify()* method to avoid errors while stringifying SCX files content. New property *lastOpTime* in *json* class. Changes in *Stringify()*, *Parse()* and *ParseCursor()* methods to implement *lastOpTime* property. Changes in *Parse()* method to support expression values|
-|May 1, 2015 |VES |*cursorSchemas* property on *json* class renamed to *Schemas*. *cursorSchemas* class renamed to *jsonSchemas*. New method *Create()* in *jsonSchemas* class. New error (22). Several changes in *jsonError* class. Changed *initWithDefault()* with *initWithEx()* for CATCH error handling|
-|Apr 30, 2015 |VES |New method *toCursor()* in *json* class. New method *initWithValue()* in *jsonColumn*. Changes in *jsonColumn* class's constructor. New error (21). New optional parameter *pnDSID* in *parseCursor()* method of *json* class. New optional parameter *pnDSID* in *Stringify()* method of *json* class. New optional parameter *pnDSID* in *newFromCursor()* method of *jsonScheme* class|
-|Apr 10, 2015 |VES |New method *initWithJSON()* in *jsonSchema*. Update to *ToString()* method in *jsonColumn* and *jsonSchema* to support JSON format. Update to *Stringif()* in *json* class to optional include the schema when stringifying a cursor. New method *parseCursor()* in *json* class. New method *initWithString()* in *jsonError* class. New errors (16 to 20). New property *useStrictNotation* in *json* class.|
-| 2015		   |AFG	|Multiple changes and fixes.  Schemas implementation.|
-| 2014		   |VES	|Initial version
+[11-26-2022|VES|New version 1.20. Fast parse mode implemented |
+|11-16-2022 |VES |New version 1.19. Changes to allow access to secured servers|
+|10-26-2022 |VES |New version 1.18. Changes on jsonColumn class to support null values |
+|5-9-2022  |VES |New version 1.17. Includes fixes on toCursor method for legacy VFP versions.|
+|4-16-2022 |VES |Support for NQInclude to automatically download any dependencies.|
+|4-6-2022  |VES |Nuevos metodos *httpRequest()* y *httpPost()*. Refactorizacion del metodo *httpGet()*. Mejora en metodo *ParseXML()* para tolerar el caracter "-" en nombres de nodo o atributos.|
+|5-29-2019 |VES |Se corrigio el problema con el metodo *ToCursor()* (agradecimiento especial a Fernando Puyuelo) Soporte para mensajes en espanol (por Fernando Puyuelo)|
+|5-6-2019  |AFG |Error en methodo *initWithEx()* de clase *JSONError* que usaba incorrectamente el no. de error 1525 para identificar errores de ODBC.|
+|4-25-2017 |VES |Nueva propiedad *stringSeparator*|
+|7-20-2016 |VES |Obviar caracters TAB en el analisis|
+|5-16-2016 |VES |Correcciones menores en metodo *Stringify()*|
+|12-18-2015 |VES |*SingletonPattern* class renamed to *JSONSingletonPattern*|
+|9-11-2015 |VES |Improves in *Stringify()* method for versions of VFP with no Empty class.|
+|8-24-2015 |VES |Improves in parseXml() method to handle repetitive sibling nodes as arrays.|
+|8-22-2015 |VES |New improved *httpGet()* method with XML support. New *ParseXml()* method. New *ToXml()* method|
+|8-20-2015 |VES |Fix on *_parse()* method for date values handling|
+|8-12-2015 |VES |New *httpGet()* method. Small change in *Beautify()* method to ensure backward compatibility.|
+|5-30-2015 |VES |Minor fixes on *Parse()* method for constant values like true, false or null|
+|5-3-2015  |VES |Backward compatibility with previous versions of VFP (6+)|
+|5-2-2015  |VES |Changes in *Stringify()* method to avoid errors while stringifying SCX files content. New property *lastOpTime* in *json* class. Changes in *Stringify()*, *Parse()* and *ParseCursor()* methods to implement *lastOpTime* property. Changes in *Parse()* method to support expression values|
+|5-1-2015 |VES |*cursorSchemas* property on *json* class renamed to *Schemas*. *cursorSchemas* class renamed to *jsonSchemas*. New method *Create()* in *jsonSchemas* class. New error (22). Several changes in *jsonError* class. Changed *initWithDefault()* with *initWithEx()* for CATCH error handling|
+|4-30-2015 |VES |New method *toCursor()* in *json* class. New method *initWithValue()* in *jsonColumn*. Changes in *jsonColumn* class's constructor. New error (21). New optional parameter *pnDSID* in *parseCursor()* method of *json* class. New optional parameter *pnDSID* in *Stringify()* method of *json* class. New optional parameter *pnDSID* in *newFromCursor()* method of *jsonScheme* class|
+|4-10-2015 |VES |New method *initWithJSON()* in *jsonSchema*. Update to *ToString()* method in *jsonColumn* and *jsonSchema* to support JSON format. Update to *Stringif()* in *json* class to optional include the schema when stringifying a cursor. New method *parseCursor()* in *json* class. New method *initWithString()* in *jsonError* class. New errors (16 to 20). New property *useStrictNotation* in *json* class.|
+| 2015 |AFG	|Multiple changes and fixes.  Schemas implementation.|
+| 2014 |VES	|Initial version
 
