@@ -2417,17 +2417,15 @@ if (typeof JSON !== "object") {
 				function goodParse(obj){
 					if(obj && typeof obj == "object"){
 						if(!(obj instanceof Array)){
+							var value = obj[id]
 							for(var id in obj){
 								if(id.toUpperCase() == "ITEM"){								
 									// ocultar la variable
-									obj["...." + id] = obj[id]
+									obj["...." + id] = value
 									delete obj[id]
 								}
-								else{
-									var value = obj[id]
-									if(typeof value == "object"){
-										goodParse(value)
-									}
+								if(typeof value == "object"){
+									goodParse(value)
 								}
 							}
 						}
