@@ -74,9 +74,15 @@ command before the call to the Parse method:
 
     JSON.fastParseMode = .T.
     
-Take in consideration that when using the fast parser, the resulting object will be a JS object instead
-of a VFP object. As consequence, arrays are returned as JS arrays and not as a VFP collection, so the 
-only way to interact with it is using FOR EACH:
+By default, the result obtained from fast parsing is a JS object that is automatically converted to 
+foxpro objects to normalize the result between normal and fast parsing, but this adds a small performance
+penalty to the process.  To avoid this, and receive the original JS object, set:
+
+    JSON.normalizeResults = .F.
+			
+			
+Take in consideration that JS objects does not behave the same way foxpro objects does. For example, you only can 
+iterate on an array's elements using FOR EACH:
 
     FOR EACH oElem IN jsonData.arrayProperty
        * Here you can access element's properties
@@ -230,7 +236,9 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
-[11-26-2022|VES|New version 1.20. Fast parse mode implemented |
+|11/26/2022|VES|Add new normalizeResults property and results-normalizing code for fast parsing|
+|11/26/2022|JSZ|Added iterator to JS results when fast parsing|
+|11-26-2022|VES|New version 1.20. Fast parse mode implemented |
 |11-16-2022 |VES |New version 1.19. Changes to allow access to secured servers|
 |10-26-2022 |VES |New version 1.18. Changes on jsonColumn class to support null values |
 |5-9-2022  |VES |New version 1.17. Includes fixes on toCursor method for legacy VFP versions.|

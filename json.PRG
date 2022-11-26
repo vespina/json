@@ -228,8 +228,10 @@ DEFINE CLASS json AS Custom
 	lastError = NULL                    && Last error info
 	stringSeparator = ["]				&& String separator
 	useFastParser = .F.                 && Use a faster parser (Non-VFP code)	
+	normalizeResults = .T.              && (fastParsing only). Converts JS object to Fox object
 	
 	HIDDEN oFastParser                  && Rerence to the fast parser
+	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
 	 RETURN 1.20
@@ -305,11 +307,16 @@ DEFINE CLASS json AS Custom
     
 
     HIDDEN PROCEDURE _fastParse(pcJSON)
-	    LOCAL oJS
-		oJS = THIS._getFastParser()
-		oJS.Language = "JScript"
+	    LOCAL oJS,oJSON,oData
 	    pcJSON = ALLTRIM(CHRT(pcJSON, CHR(13) + CHR(10), ""))
-        RETURN oJS.Eval([(JSON.parse('] + pcJSON + ['))])
+		oJS = THIS._getFastParser()
+		oJS.run("set","json",pcJSON)
+		oJS.run("set","normalize",THIS.normalizeResults)	    
+	    oJSON = oJS.run("parseJSON")
+	    IF THIS.normalizeResults
+	     	oJSON = THIS._js2fox(oJSON)
+	    ENDIF
+	    RETURN oJSON
 
     
 	HIDDEN PROCEDURE _Parse(pcJSON, pnPos)
@@ -394,9 +401,6 @@ DEFINE CLASS json AS Custom
 	          lIsString = .F.
 	          lExprMode = .F.
 	          lVarMode = .F.	          
-	          IF cProp = "codlts"
-	            *SET STEP ON 
-	          ENDIF
 	          	          
 	     CASE cChar = SPACE(1) AND nMode = 2 AND !lIsString && Discard spaces between property name and property value
 	     
@@ -1844,6 +1848,7 @@ DEFINE CLASS json AS Custom
 		WITH THIS.oFastParser
 			.Language = "JScript"
 			.addCode( THIS._getJSONParserCode() )
+			.addCode( THIS._getSupportCode() )
 		ENDWITH
 		RETURN THIS.oFastParser
 		
@@ -2432,6 +2437,97 @@ if (typeof JSON !== "object") {
 }());
 		ENDTEXT
 		RETURN cJSONParserCode
+
+
+
+	HIDDEN FUNCTION _getSupportCode
+		LOCAL cCode
+		TEXT TO cCode NOSHOW
+
+var buff = {
+	json: "",
+	normalize: true
+}
+
+function set(name, value) {
+	buff[name] = value;
+}
+
+function get(name) {
+	return buff[name];
+}
+
+function parseJSON() {
+	var o = JSON.parse(buff.json);
+	if (buff.normalize) o = analyze(o);
+	return o;
+}
+
+
+function analyze(value, name) {
+	var node = {
+	    name: name,
+		type: typeof value,
+		value: value
+	}
+	
+	if (node.type == "object" && value && value.constructor && value.constructor === Array)
+		node.type = "array";
+	
+	switch (node.type) {
+		case "object":
+		    node.value = [];
+		    for (k in value) {
+            	if (Object.prototype.hasOwnProperty.call(value, k)) {
+            		node.value.push(analyze(value[k], k));	
+            	}
+            }
+			break;
+			
+		case "array":
+		    node.value = [];
+		    for (var i = 0; i < value.length; i++) {
+		    	node.value.push(analyze(value[i]));
+		    }
+			break;
+	}
+	
+	return node;
+}
+		ENDTEXT
+		RETURN cCode
+
+
+	HIDDEN FUNCTION _js2fox(poNode, poJS)
+		IF PCOUNT() = 1
+			poJS = THIS._getFastParser()
+		ENDIF
+	    LOCAL cType,fo,oNode
+	    cType = poNode.type
+	    DO CASE
+	       CASE cType == "object"
+	            fo = CREATEOBJECT("Empty")
+	            FOR EACH oNode IN poNode.value
+	            	IF TYPE("oNode.name")<>"U"   && REQUIRED TO VOID "phantom" NODES
+	            		ADDPROPERTY(fo, oNode.name, THIS._js2fox(oNode, poJS) )
+	            	ENDIF
+	            ENDFOR
+	            
+	       CASE cType == "array"
+	            fo = CREATEOBJECT("Collection")
+	            FOR EACH oNode IN poNode.value 
+	            	IF TYPE("oNode.Name") <> "U"   && REQUIRED TO VOID "phantom" NODES
+	            		fo.add( THIS._js2fox(oNode, poJS) )
+	            	ENDIF
+	            ENDFOR
+
+	       OTHERWISE
+	       		fo = poNode.Value
+	    ENDCASE
+		RETURN fo
+
+		
+
 ENDDEFINE
 
 
