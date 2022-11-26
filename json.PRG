@@ -2411,6 +2411,11 @@ if (typeof JSON !== "object") {
 
                 j = eval("(" + text + ")");
 
+// James Suárez 26-11-2022
+// add prototype item function 
+
+				Object.prototype.item = function(index) { return this[index] }
+
 // In the optional fourth stage, we recursively walk the new structure, passing
 // each name/value pair to a reviver function for possible transformation.
 
