@@ -2417,8 +2417,8 @@ if (typeof JSON !== "object") {
 				function goodParse(obj){
 					if(obj && typeof obj == "object"){
 						if(!(obj instanceof Array)){
-							var value = obj[id]
 							for(var id in obj){
+								var value = obj[id]
 								if(id.toUpperCase() == "ITEM"){								
 									// ocultar la variable
 									obj["...." + id] = value
