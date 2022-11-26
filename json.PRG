@@ -2419,7 +2419,34 @@ if (typeof JSON !== "object") {
 // James Suárez 26-11-2022
 // add prototype item function 
 
-				Object.prototype.item = function(index) { return this[index] }
+				function goodParse(obj){
+					if(obj && typeof obj == "object"){
+						if(!(obj instanceof Array)){
+							for(var id in obj){
+								var value = obj[id]
+								if(id.toUpperCase() == "ITEM"){								
+									// ocultar la variable
+									obj["...." + id] = value
+									delete obj[id]
+								}
+								if(typeof value == "object"){
+									goodParse(value)
+								}
+							}
+						}
+					}
+					return obj 
+				}
+				
+				goodParse(j)
+				Object.prototype.item = function() {
+					var index = arguments[0]
+					if(index === undefined || index === null) index = "....item"					
+					if(typeof index == "string" && index.toUpperCase()=="ITEM"){
+						index= "...." + index
+					}
+					return this[index]
+				}
 
 // In the optional fourth stage, we recursively walk the new structure, passing
 // each name/value pair to a reviver function for possible transformation.
