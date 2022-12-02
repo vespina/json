@@ -68,8 +68,8 @@ can be checked using json.lastError object:
 
 
 ### NEW FAST PARSER MODE
-IF you need to parse a large JSON string, you can now activate a fast parser mode, that will parse
-the JSON much more faster than using the normal VFP-base parser. To activate this mode, just add this
+If you need to parse a large JSON string, you can now activate a fast parser mode that will parse
+the JSON much more faster than using the normal VFP-based parser. To activate this mode, just add this
 command before the call to the Parse method:
 
     JSON.useFastParser = .T.
