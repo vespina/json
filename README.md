@@ -9,14 +9,27 @@ Author: V. Espina / A. Ferreira
 
 ### BASIC USAGE
 
+#### IMPORTANT 
+Before using this library in your project, make sure to run this command from your VFP's command window, at
+the same folder where you placed the JSON.PRG file:
+
+    DO JSON
+    
+This is required so the library can download any required dependencies.
+
+
 #### Load the library
 Simply addd this code at the begining of your main program:
 
     DO json
     
-The first time the library is ran, it will automatically download some dependencies from the Internet, so its
-better if you run DO JSON one time from your VFP's command line.    
- 
+This will create a public object called JSON that you can use to perform many JSON-related tasks. If you prefer
+to use local instances, then you can instantiate the class this way:
+
+    LOCAL oJSON
+    oJSON = CREATEOBJECT("JSON")
+    
+     
 #### To parse a JSON string
     LOCAL oPerson
     oPerson = JSON.Parse('{ "firstName": "Victor", "lastName": "Espina", "YOB": 1970 }')
@@ -236,6 +249,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+[10/01/2022|VES|New version 1.21. Small fix on 	#DEFINE VFP_JSON_BEAUTIFY_MARGIN |
 |11/26/2022|VES|Add new normalizeResults property and results-normalizing code for fast parsing|
 |11/26/2022|JSZ|Added iterator to JS results when fast parsing|
 |11/26/2022|VES|New version 1.20. Fast parse mode implemented |

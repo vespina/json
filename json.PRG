@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.20
+* Version: 1.21
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -133,6 +133,7 @@
 
 #DEFINE VFP_JSON_LANG		        "EN"    && Cambiar a ES para mensajes en espanol
 #DEFINE VFP_NOENCODABLE_PROPS		"-controls-controlcount-objects-parent-class-baseclass-classlibrary-parentclass-helpcontextid-whatsthishelpid-top-left-width-height-picture-_customproplist-activecontrol-activeform-forms-"
+#DEFINE VFP_JSON_BEAUTIFY_MARGIN	2
 #DEFINE CRLF 						CHR(13)+CHR(10)
 
 #IF VFP_JSON_LANG=="EN"
@@ -158,7 +159,6 @@
 	#DEFINE VFP_JSON_MSG_020			"The schema is empty"
 	#DEFINE VFP_JSON_MSG_021			"The provided JSON is not an array of objects"
 	#DEFINE VFP_JSON_MSG_022			"Alias already exists"
-	#DEFINE VFP_JSON_BEAUTIFY_MARGIN	2
 #ENDIF
 
 #IF VFP_JSON_LANG == "ES"
@@ -234,7 +234,7 @@ DEFINE CLASS json AS Custom
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.20
+	 RETURN 1.21
 	ENDPROC
 	
     
