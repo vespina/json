@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.21
+* Version: 1.22
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -311,10 +311,15 @@ DEFINE CLASS json AS Custom
 	    pcJSON = ALLTRIM(CHRT(pcJSON, CHR(13) + CHR(10), ""))
 		oJS = THIS._getFastParser()
 		oJS.run("set","json",pcJSON)
+		foo = oJS.run("get","json")
 		oJS.run("set","normalize",THIS.normalizeResults)	    
 	    oJSON = oJS.run("parseJSON")
-	    IF THIS.normalizeResults
-	     	oJSON = THIS._js2fox(oJSON)
+	    IF !ISNULL(oJSON)
+		    IF THIS.normalizeResults
+		     	oJSON = THIS._js2fox(oJSON)
+		    ENDIF
+		ELSE
+			THIS.lastError.initWithString(oJS.run("get","lasterror"))
 	    ENDIF
 	    RETURN oJSON
 
@@ -1862,7 +1867,16 @@ DEFINE CLASS json AS Custom
 	*
 	HIDDEN FUNCTION _getJSONParserCode
 		LOCAL cJSONParserCode
-		TEXT TO cJSONParserCode NOSHOW
+		#IF VERSION(5) = 600
+			LOCAL cPrinter,cTmpFile
+			cPrinter = SET("PRINTER")
+			cTmpFile = ADDBS(GETENV("TEMP")) + "TM" + SYS(2015) + ".TMP"
+			SET PRINTER TO FILE (cTmpFile)
+			SET DEVICE TO PRINT
+			SET CONSOLE OFF
+			SET PRINT ON
+		#ENDIF
+		TEXT TO cJSONParserCode NOSHOW 
 //  json2.js 
 //  2022-10-30
 //  Public Domain.
@@ -2463,12 +2477,29 @@ if (typeof JSON !== "object") {
     }
 }());
 		ENDTEXT
+		#IF VERSION(5) = 600
+			SET PRINT OFF
+			SET CONSOLE ON
+			SET DEVICE TO SCREEN
+			SET PRINTER TO &cPrinter
+			cJSONParserCode = FILETOSTR(cTmpFile)
+			ERASE (cTmpFile)
+		#ENDIF
 		RETURN cJSONParserCode
 
 
 
 	HIDDEN FUNCTION _getSupportCode
 		LOCAL cCode
+		#IF VERSION(5) = 600
+			LOCAL cPrinter,cTmpFile
+			cPrinter = SET("PRINTER")
+			cTmpFile = ADDBS(GETENV("TEMP")) + "TM" + SYS(2015) + ".TMP"
+			SET PRINTER TO FILE (cTmpFile)
+			SET DEVICE TO PRINT
+			SET CONSOLE OFF
+			SET PRINT ON
+		#ENDIF
 		TEXT TO cCode NOSHOW
 
 var buff = {
@@ -2485,8 +2516,16 @@ function get(name) {
 }
 
 function parseJSON() {
-	var o = JSON.parse(buff.json);
-	if (buff.normalize) o = analyze(o);
+	var o = null;
+	buff.lasterror = "";
+	try {
+		o = JSON.parse(buff.json);
+	    if (buff.normalize) o = analyze(o);
+
+	} catch (ex) {
+	    o = null;
+	    buff.lastError = ex.message;
+	}
 	return o;
 }
 
@@ -2522,6 +2561,14 @@ function analyze(value, name) {
 	return node;
 }
 		ENDTEXT
+		#IF VERSION(5) = 600
+			SET PRINT OFF
+			SET CONSOLE ON
+			SET DEVICE TO SCREEN
+			SET PRINTER TO &cPrinter
+			cCode = FILETOSTR(cTmpFile)
+			ERASE (cTmpFile)
+		#ENDIF
 		RETURN cCode
 
 
@@ -2533,7 +2580,7 @@ function analyze(value, name) {
 	    cType = poNode.type
 	    DO CASE
 	       CASE cType == "object"
-	            fo = CREATEOBJECT("Empty")
+	            fo = CREATEOBJECT(_Empty)
 	            FOR EACH oNode IN poNode.value
 	            	IF TYPE("oNode.name")<>"U"   && REQUIRED TO VOID "phantom" NODES
 	            		ADDPROPERTY(fo, oNode.name, THIS._js2fox(oNode, poJS) )

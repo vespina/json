@@ -249,6 +249,8 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+[01/26/2022|VES|New version 1.22. Workaround for TEXT - ENDTEXT bug in VFP6.|
+[01/26/2002|VES|Fix on legacy ADDPROPERTY for restricted property names |
 [10/01/2022|VES|New version 1.21. Small fix on 	#DEFINE VFP_JSON_BEAUTIFY_MARGIN |
 |11/26/2022|VES|Add new normalizeResults property and results-normalizing code for fast parsing|
 |11/26/2022|JSZ|Added iterator to JS results when fast parsing|
