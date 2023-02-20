@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.22
+* Version: 1.23
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -1396,9 +1396,16 @@ DEFINE CLASS json AS Custom
 		_TRY
 		    oHTTP.setOption(2) = 13056    && IGNORE CERTIFICATE ERRORS
 		    oHTTP.open(pcVerb, pcUrl, .F.)
+		    IF EMPTY(pcHeaders)
+		       pcHeaders = ""
+		    ENDIF
 		    IF NOEX() AND INLIST(UPPER(pcVerb),"POST","PUT") AND !EMPTY(puData)
-		    	oHTTP.setRequestHeader("Content-Type", "application/json")
-		    	oHTTP.setRequestHeader("Content-Length", LEN(puData))
+		        IF ATC("Content-Type",pcHeaders) = 0 
+		    	   oHTTP.setRequestHeader("Content-Type", "application/json")
+		    	ENDIF
+		    	IF ATC("Content-Length",pcHeaders) = 0
+		    		oHTTP.setRequestHeader("Content-Length", LEN(puData))
+		    	ENDIF
 		    ENDIF
 		    IF NOEX() AND !EMPTY(pcHeaders)
 		    	LOCAL ARRAY aHeaders[1]
@@ -1427,7 +1434,7 @@ DEFINE CLASS json AS Custom
 		    IF NOEX()
 				LOCAL nTimeOut
 				nTimeout = SECONDS()
-				DO WHILE oHTTP.readyState<>4 OR (SECONDS() - nTimeout) > 15
+				DO WHILE oHTTP.readyState<>4 OR (SECONDS() - nTimeout) < pnTimeout
 				  DOEVENTS
 				ENDDO
 				IF oHTTP.readyState = 4 
@@ -3672,7 +3679,7 @@ PROCEDURE httpGetFile(pcUrl)
    oHTTP.Send()
    LOCAL nTimeOut
    nTimeout = SECONDS()
-   DO WHILE oHTTP.readyState<>4 OR (SECONDS() - nTimeout) > 15
+   DO WHILE oHTTP.readyState<>4 OR (SECONDS() - nTimeout) < pnTimeout
       DOEVENTS
    ENDDO
    IF oHTTP.readyState <> 4 OR !BETWEEN(oHTTP.status,200,299)

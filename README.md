@@ -1,7 +1,7 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.22
+Version: 1.23
 
 Author: V. Espina / A. Ferreira
 
@@ -190,7 +190,7 @@ Multiple headers can be passed using CRLF to separate them. The *uData* paramete
 #### httpRequest
 This method allows to send any kind of REST request to a webservice and receive an answer in either JSON or XML format.  Both *httpGet()* and *httpPost()* methods calls this method internaly.  The full sytax is:
 
-    resp = JSON.httpRequest(cVerb, cUrl [,uData], [,cContentType] [,cHeaders] [,nTimeout[)
+    resp = JSON.httpRequest(cVerb, cUrl [,uData], [,cHeaders] [,nTimeout[)
 
 where *cVerb* can be any of these:
 
@@ -249,6 +249,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|02/28/2023|VES|New version 1.13. Fix on timeout management for httpRequest and httpGetFile methdods|
 [01/26/2022|VES|New version 1.22. Workaround for TEXT - ENDTEXT bug in VFP6.|
 [01/26/2002|VES|Fix on legacy ADDPROPERTY for restricted property names |
 [10/01/2022|VES|New version 1.21. Small fix on 	#DEFINE VFP_JSON_BEAUTIFY_MARGIN |
