@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.23
+* Version: 1.24
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -234,7 +234,7 @@ DEFINE CLASS json AS Custom
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.21
+	 RETURN 1.24
 	ENDPROC
 	
     
@@ -828,7 +828,7 @@ DEFINE CLASS json AS Custom
 	 LOCAL lIsJSObject
 	 lIsJSObject = .F.
 	 IF cType = "O"
-	 	lIsJSObject = (AMEMBERS(aProps, puObjectOrAlias, 0) = 0)
+	 	lIsJSObject = (AMEMBERS(aProps, puObjectOrAlias, 1) = 0)
 	 ENDIF
 	 
 	 
