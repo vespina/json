@@ -1,7 +1,7 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.24
+Version: 1.25
 
 Author: V. Espina / A. Ferreira
 
@@ -249,6 +249,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|04/18/2023|VES|New version 1.25. External dependencies removed to solve a problem caused by nqinclude.prg being blocked for A/V as trojan|
 |04/04/2023|VES|New version 1.24. Fix on invalid parameter for AMEMBERS on VFP6 (thanks to Ricardo Mata)|
 |02/28/2023|VES|New version 1.23. Fix on timeout management for httpRequest and httpGetFile methdods|
 [01/26/2022|VES|New version 1.22. Workaround for TEXT - ENDTEXT bug in VFP6.|
