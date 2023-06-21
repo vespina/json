@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.25
+* Version: 1.26
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -135,6 +135,7 @@
 #DEFINE VFP_NOENCODABLE_PROPS		"-controls-controlcount-objects-parent-class-baseclass-classlibrary-parentclass-helpcontextid-whatsthishelpid-top-left-width-height-picture-_customproplist-activecontrol-activeform-forms-"
 #DEFINE VFP_JSON_BEAUTIFY_MARGIN	2
 #DEFINE CRLF 						CHR(13)+CHR(10)
+#DEFINE VFP_MAX_INT					2147483647
 
 #IF VFP_JSON_LANG=="EN"
 	#DEFINE VFP_JSON_MSG_001			"The schema name is missing."
@@ -518,7 +519,11 @@ DEFINE CLASS json AS Custom
 	           uBuff = .T.
 	      
 	      OTHERWISE
-	          uBuff = IIF(AT(".",uBuff) = 0, INT(VAL(uBuff)), VAL(uBuff))
+	          IF VAL(uBuff) <= VFP_MAX_INT
+	          	uBuff = IIF(AT(".",uBuff) = 0, INT(VAL(uBuff)), VAL(uBuff))
+	          ELSE 
+	            lIsString = .T.
+	          ENDIF
 	   ENDCASE
 	   IF lIsArray
 	    oTarget.Add(uBuff)
