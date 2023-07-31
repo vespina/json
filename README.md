@@ -19,7 +19,7 @@ This is required so the library can download any required dependencies.
 
 
 #### Load the library
-Simply addd this code at the begining of your main program:
+Just add this code at the beginning of your main program:
 
     DO json
     
