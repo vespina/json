@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.26
+* Version: 1.27
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -108,6 +108,9 @@
 *     SCAN
 *      ?fname, lname, age
 *     ENDSCAN
+*    
+*     If a single object is passed, it would be transformed into an array before processing.
+*
 *
 * [3] All schemas has to be identified with an unique name. This name would be used later to access a
 *     particular schema, ex:
@@ -1120,11 +1123,12 @@ DEFINE CLASS json AS Custom
 	  ENDIF
 	 ENDIF
 	 
-	 * Verify that the object is a collection
+	 * Verify that the object is a collection. If not, convert it to one
 	 IF !PEMSTATUS(poJSON, "class", 5) OR LOWER(poJSON.class) <> "collection" OR poJSON.Count = 0 OR VARTYPE(poJSON.Item[1])<>"O"
-	  THIS.lastError.initWithString(VFP_JSON_MSG_021, "toCursor")
-	  THIS.lastOpTime = SECONDS() - nStarted + IIF(SECONDS() < nStarted, 86400, 0)
-	  RETURN .F.
+	  LOCAL oArray
+	  oArray = CREATEOBJECT("Collection")
+	  oArray.Add(poJSON)
+	  poJSON = oArray
 	 ENDIF
 	 
 	 * Change the datasession (if needed)

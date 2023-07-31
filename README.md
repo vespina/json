@@ -1,7 +1,7 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.26
+Version: 1.27
 
 Author: V. Espina / A. Ferreira
 
@@ -223,6 +223,9 @@ The *resp* object contains the following properties:
       ?fname, lname, age
     ENDSCAN
 
+	IF a single object is passed it would be transformed into an array before processing.
+	
+
 [3] All schemas has to be identified with an unique name. This name would be used later to access a particular schema, ex:
     
     JSON.Schemas.newFromString("userInfo","login C (25), fullname C (50), pwd C (50), role C (50)")
@@ -249,6 +252,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|07/31/2023|VES|New version 1.27. Change in ToCursor() method to allow single objects |
 |06/21/2023|VES|New version 1.26. Int values greater than VFP's max INT value are now translated as strings |
 |04/18/2023|VES|New version 1.25. External dependencies removed to solve a problem caused by nqinclude.prg being blocked for A/V as trojan|
 |04/04/2023|VES|New version 1.24. Fix on invalid parameter for AMEMBERS on VFP6 (thanks to Ricardo Mata)|
