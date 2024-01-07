@@ -9,15 +9,6 @@ Author: V. Espina / A. Ferreira
 
 ### BASIC USAGE
 
-#### IMPORTANT 
-Before using this library in your project, make sure to run this command from your VFP's command window, at
-the same folder where you placed the JSON.PRG file:
-
-    DO JSON
-    
-This is required so the library can download any required dependencies.
-
-
 #### Load the library
 Just add this code at the beginning of your main program:
 
