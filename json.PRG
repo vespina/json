@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.27
+* Version: 1.28
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -232,7 +232,7 @@ DEFINE CLASS json AS Custom
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.24
+	 RETURN 1.28
 	ENDPROC
 	
     
@@ -1437,7 +1437,7 @@ DEFINE CLASS json AS Custom
 		    IF NOEX()
 				LOCAL nTimeOut
 				nTimeout = SECONDS()
-				DO WHILE oHTTP.readyState<>4 OR (SECONDS() - nTimeout) < pnTimeout
+				DO WHILE oHTTP.readyState<>4 AND (SECONDS() - nTimeout) < pnTimeout
 				  DOEVENTS
 				ENDDO
 				IF oHTTP.readyState = 4 
