@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.28
+* Version: 1.29
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -1442,9 +1442,18 @@ DEFINE CLASS json AS Custom
 				ENDDO
 				IF oHTTP.readyState = 4 
 					oResult.statusCode = oHTTP.status
-					cResponse = oHTTP.responseText()
 					oResult.Headers = oHTTP.getAllResponseHeaders()
 					oResult.contentType = oHTTP.getResponseHeader("Content-Type")
+					DO CASE
+					   CASE ATC("json",oResult.contentType) > 0
+					        cResponse = oHTTP.responseText()
+					        
+					   CASE ATC("xml",oResult.contentType) > 0
+					        cResponse = oHTTP.responseText()					        
+					        
+					   OTHERWISE
+					        cResponse = oHTTP.responseBody()
+					ENDCASE
 				ELSE
 					THIS.lastError.initWithString("No se pudo obtener respuesta del webservice")
 				ENDIF		    		     	

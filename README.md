@@ -1,7 +1,7 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.28
+Version: 1.29
 
 Author: V. Espina / A. Ferreira
 
@@ -243,6 +243,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|04/22/2024|VES|New version 1.29. Fix on httpRequest to get the right value in RAW property for binary responses |
 |01/07/2024|VES|New version 1.28. Fix of major bug on HTTPRequest causing any request to take AT LEAST 15s.
 |07/31/2023|VES|New version 1.27. Change in ToCursor() method to allow single objects |
 |06/21/2023|VES|New version 1.26. Int values greater than VFP's max INT value are now translated as strings |
