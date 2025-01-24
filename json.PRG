@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.27
+* Version: 1.32
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -227,12 +227,14 @@ DEFINE CLASS json AS Custom
 	stringSeparator = ["]				&& String separator
 	useFastParser = .F.                 && Use a faster parser (Non-VFP code)	
 	normalizeResults = .T.              && (fastParsing only). Converts JS object to Fox object
+	ignoreInvalidChars = .T.            && Ignore invalid chars in property names
+	httpClient = 0                      && HTTP client to be used (0:serverXMLHTTP6, 1:XMLHTTP6, 2:XMLHTTP)
 	
 	HIDDEN oFastParser                  && Rerence to the fast parser
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.24
+	 RETURN 1.32
 	ENDPROC
 	
     
@@ -263,6 +265,7 @@ DEFINE CLASS json AS Custom
     #IF VERSION(5) < 700
 	    PROCEDURE Parse(pcJson, pnPos)
 	     LOCAL nStarted, oJSON, oEX
+	     THIS.lastError.Clear()
 	     nStarted = SECONDS()
 
 		 ex = TRY()
@@ -286,6 +289,7 @@ DEFINE CLASS json AS Custom
     #IF VERSION(5) > 600
 	    PROCEDURE Parse(pcJson, pnPos)
 	     LOCAL nStarted, oJSON
+	     THIS.lastError.Clear()
 	     nStarted = SECONDS()
 	     TRY
 	 		IF THIS.useFastParser
@@ -350,7 +354,6 @@ DEFINE CLASS json AS Custom
 	 nMode = IIF(lIsArray, 2, 0)
 	 uBuff = ""       
 	 i = 1
-	 THIS.lastError.hasError = .F.
 
      #IF VERSION(5) > 600	 
 	 TRY
@@ -392,7 +395,11 @@ DEFINE CLASS json AS Custom
 	          uBuff = cChar
 	          
 	     CASE nMode = 1 AND !THIS.isAlpha(cChar) AND !ISDIGIT(cChar) AND !INLIST(cChar,":",SPACE(1),cStringSep,"-")  && Invalid char in property mode
-	          THROW(VFP_JSON_MSG_013 + " (" + SUBSTR(pcJSON, i - 10, 10) + " -->" + cChar + "<-- " + SUBSTR(pcJSON,i+1,20) + ") " + TRANSFORM(lIsString,"") + " " + TRANSFORM(uBuff,""))
+	          IF THIS.IgnoreInvalidChars
+	          	LOOP
+	          ELSE
+	          	THROW(VFP_JSON_MSG_013 + " (" + SUBSTR(pcJSON, i - 10, 10) + " -->" + cChar + "<-- " + SUBSTR(pcJSON,i+1,20) + ") " + TRANSFORM(lIsString,"") + " " + TRANSFORM(uBuff,""))
+	          ENDIF
 	          
 	     CASE  !INLIST(cChar, cStringSep, ":", SPACE(1)) AND nMode = 1  && Property name
 	          uBuff = uBuff + CHRTRAN(cChar,"-","_")
@@ -534,7 +541,15 @@ DEFINE CLASS json AS Custom
 	    nMode = 2	    
 	   ELSE
 	    IF !EMPTY(cProp)	     
+	     #IF VERSION(5) >= 900
+	        TRY
+	     #ENDIF
 	     ADDPROPERTY(oTarget, cProp, uBuff)
+	     #IF VERSION(5) >= 900
+	        CATCH TO ex
+	            THROW "Invalid property name: " + cProp
+	        ENDTRY
+	     #ENDIF
 	    ENDIF
 	    nMode = 0 
 	    cProp = ""
@@ -642,6 +657,7 @@ DEFINE CLASS json AS Custom
 	*
 	FUNCTION parseXML(poXmlNode, pcArrayNodes)
 	 *
+	 THIS.lastError.Clear()
 	 IF VARTYPE(poXmlNode) = "C"
 	  LOCAL oXml
       oXml = CREATEOBJECT('msxml.domdocument')
@@ -772,6 +788,7 @@ DEFINE CLASS json AS Custom
     * Toma un array y devuelve un objeto tipo JSON
     *
     PROCEDURE parseArray(paList)
+     THIS.lastError.Clear()
      EXTERNAL ARRAY paList
      LOCAL oTarget,i,nRows,nCols,j,oItem
      nRows = ALEN(paList,1)
@@ -808,6 +825,7 @@ DEFINE CLASS json AS Custom
 	 nWkArea = SELECT()
 	 cType = VARTYPE(puObjectOrAlias)
 	 nStarted = SECONDS()
+	 THIS.lastError.Clear()
  	 IF !EMPTY(pnDSID)
  	  SET DATASESSION TO (pnDSID)
  	 ENDIF	 
@@ -993,6 +1011,7 @@ DEFINE CLASS json AS Custom
 	 *
 	 LOCAL nStarted
 	 nStarted = SECONDS()
+	 THIS.lastError.Clear()
 	 
 	 IF VARTYPE(puData)="C" AND LEFT(puData,1) $ "{[" AND PCOUNT() = 1
 	  puData = THIS.Parse(puData)
@@ -1056,7 +1075,21 @@ DEFINE CLASS json AS Custom
 		      pcOut = pcOut + IIF(i < puData.Count,[,],"") 	
 		     ENDFOR
 		     pcOut = pcOut + IIF(VARTYPE(e)="O",CRLF + SPACE(pnMargin),"") + "]" 
-		     
+
+		CASE cType = "O" AND TYPE("puData.Class")="C" AND PEMSTATUS(puData,"count",5) AND PEMSTATUS(puData,"Items",5)   && Array
+		     LOCAL i,e
+		     pcOut = pcOut + "["
+		     FOR i = 1 TO puData.Count
+		      e = puData.Items[i]
+		      IF VARTYPE(e) = "O" 
+		       pcOut = pcOut + CRLF + THIS.Beautify(e, "", pnMargin + VFP_JSON_BEAUTIFY_MARGIN + 1)
+		      ELSE
+		       pcOut = pcOut + IIF(i>1," ","") + THIS.Beautify(e, "", 0)
+		      ENDIF
+		      pcOut = pcOut + IIF(i < puData.Count,[,],"") 	
+		     ENDFOR
+		     pcOut = pcOut + IIF(VARTYPE(e)="O",CRLF + SPACE(pnMargin),"") + "]" 
+		     		     
 		CASE cType = "O"   && Object
 		     pcOut = pcOut + "{" + CRLF
 		     LOCAL ARRAY aElems[1]
@@ -1065,7 +1098,7 @@ DEFINE CLASS json AS Custom
 		     
 	     	 #IF VERSION(5) < 800
 	     	  LOCAL lEmptyObject,oLine
-	     	  lEmptyObject = (LOWER(puData.Class) == "emptyobject")
+	     	  lEmptyObject = (PEMSTATUS(puData,"class",5) AND LOWER(puData.Class) == "emptyobject")
 	     	  IF lEmptyObject
  	     	   oLine = CREATE("Line")
  	     	  ENDIF
@@ -1113,6 +1146,7 @@ DEFINE CLASS json AS Custom
 	 *
 	 LOCAL nStarted
 	 nStarted = SECONDS()
+	 THIS.lastError.Clear()
 	 
 	 * If received a JSON string, parse it first
 	 IF VARTYPE(poJSON) = "C"
@@ -1221,6 +1255,7 @@ DEFINE CLASS json AS Custom
 	 *
 	 LOCAL nStarted
 	 nStarted = SECONDS()
+	 THIS.lastError.Clear()
 	 	
 	 IF VARTYPE(puData)="C" AND LEFT(puData,1) $ "{[" AND PCOUNT() = 1
 	  puData = THIS.Parse(puData)
@@ -1382,9 +1417,22 @@ DEFINE CLASS json AS Custom
 		LOCAL ex,oHTTP
 		ex = NULL
 		oHTTP = NULL
-	    _TRY
-	       *oHTTP = CREATEOBJECT("MSXML2.XMLHTTP")
-	       oHTTP = CREATEOBJECT("Msxml2.ServerXMLHTTP.6.0")
+	    _TRY	    
+	       DO CASE
+	          CASE THIS.httpClient = 0
+	               oHTTP = CREATEOBJECT("Msxml2.ServerXMLHTTP.6.0")
+	          
+	          CASE THIS.httpClient = 1
+	               oHTTP = CREATEOBJECT("MSXML2.XMLHTTP.6.0")
+
+	          CASE THIS.httpClient = 2
+	               oHTTP = CREATEOBJECT("MSXML2.XMLHTTP")
+
+	          OTHERWISE
+	               THIS.httpClient = 0
+	               oHTTP = CREATEOBJECT("Msxml2.ServerXMLHTTP.6.0")
+	       ENDCASE
+	       
 	    _CATCH
 	       THIS.lastError.initWithEx(ex)
 	    _ENDTRY
@@ -1397,7 +1445,9 @@ DEFINE CLASS json AS Custom
 		LOCAL cResponse
 		cResponse = ""
 		_TRY
-		    oHTTP.setOption(2) = 13056    && IGNORE CERTIFICATE ERRORS
+		    IF THIS.httpClient = 0 
+		    	oHTTP.setOption(2) = 13056    && IGNORE CERTIFICATE ERRORS
+		    ENDIF
 		    oHTTP.open(pcVerb, pcUrl, .F.)
 		    IF EMPTY(pcHeaders)
 		       pcHeaders = ""
@@ -1437,14 +1487,23 @@ DEFINE CLASS json AS Custom
 		    IF NOEX()
 				LOCAL nTimeOut
 				nTimeout = SECONDS()
-				DO WHILE oHTTP.readyState<>4 OR (SECONDS() - nTimeout) < pnTimeout
+				DO WHILE oHTTP.readyState<>4 AND (SECONDS() - nTimeout) < pnTimeout
 				  DOEVENTS
 				ENDDO
 				IF oHTTP.readyState = 4 
 					oResult.statusCode = oHTTP.status
-					cResponse = oHTTP.responseText()
 					oResult.Headers = oHTTP.getAllResponseHeaders()
 					oResult.contentType = oHTTP.getResponseHeader("Content-Type")
+					DO CASE
+					   CASE ATC("json",oResult.contentType) > 0
+					        cResponse = oHTTP.responseText()
+					        
+					   CASE ATC("xml",oResult.contentType) > 0
+					        cResponse = oHTTP.responseText()					        
+					        
+					   OTHERWISE
+					        cResponse = oHTTP.responseBody()
+					ENDCASE
 				ELSE
 					THIS.lastError.initWithString("No se pudo obtener respuesta del webservice")
 				ENDIF		    		     	

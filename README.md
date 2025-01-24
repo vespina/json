@@ -1,22 +1,13 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.27
+Version: 1.32
 
 Author: V. Espina / A. Ferreira
 
 ----
 
 ### BASIC USAGE
-
-#### IMPORTANT 
-Before using this library in your project, make sure to run this command from your VFP's command window, at
-the same folder where you placed the JSON.PRG file:
-
-    DO JSON
-    
-This is required so the library can download any required dependencies.
-
 
 #### Load the library
 Just add this code at the beginning of your main program:
@@ -252,6 +243,10 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|01/24/2025|VES|New version 1.32. Several small fixed. Lasterror is now initialized on every public method |
+|05/10/2024|VES|New version 1.30. New property ignoreInvalidChars |
+|04/22/2024|VES|New version 1.29. Fix on httpRequest to get the right value in RAW property for binary responses |
+|01/07/2024|VES|New version 1.28. Fix of major bug on HTTPRequest causing any request to take AT LEAST 15s.
 |07/31/2023|VES|New version 1.27. Change in ToCursor() method to allow single objects |
 |06/21/2023|VES|New version 1.26. Int values greater than VFP's max INT value are now translated as strings |
 |04/18/2023|VES|New version 1.25. External dependencies removed to solve a problem caused by nqinclude.prg being blocked for A/V as trojan|
