@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.32
+* Version: 1.33
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -234,7 +234,7 @@ DEFINE CLASS json AS Custom
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.32
+	 RETURN 1.33
 	ENDPROC
 	
     
@@ -247,6 +247,7 @@ DEFINE CLASS json AS Custom
       
       * Add Property for handle of jSon Errors
       THIS.lastError = CREATEOBJECT("jsonError")
+      THIS.lastError.clear()
       
       * FastParser will be created first time is required
       THIS.oFastParser = NULL
@@ -857,7 +858,7 @@ DEFINE CLASS json AS Custom
 	         LOCAL oJS
 	         oJS = THIS._getFastParser(.T.)
 	         oJS.addObject("obj",puObjectOrAlias)
-	         RETURN oJS.Eval([(JSON.stringify(obj))])
+	         RETURN oJS.Eval([(JSON2.stringify(obj))])
 	    
 	    
 	    CASE cType = "O" AND !lIsArray  && Object
@@ -2101,9 +2102,12 @@ DEFINE CLASS json AS Custom
 
 // Create a JSON object only if one does not already exist. We create the
 // methods in a closure to avoid creating global variables.
-
-if (typeof JSON !== "object") {
-    JSON = {};
+// VES 2025
+// WE USE ANOTHER PUBLIC VARIABLE TO MAKE SURE WE ALWAYS USE
+// THIS PARSER INSTEAD OF A NATIVE PARSER
+//
+if (typeof JSON2 !== "object") {
+    JSON2 = {};
 }
 
 (function () {
@@ -2362,7 +2366,7 @@ if (typeof JSON !== "object") {
 
 // If the JSON object does not yet have a stringify method, give it one.
 
-    if (typeof JSON.stringify !== "function") {
+    if (typeof JSON2.stringify !== "function") {
         meta = {    // table of character substitutions
             "\b": "\\b",
             "\t": "\\t",
@@ -2372,7 +2376,7 @@ if (typeof JSON !== "object") {
             "\"": "\\\"",
             "\\": "\\\\"
         };
-        JSON.stringify = function (value, replacer, space) {
+        JSON2.stringify = function (value, replacer, space) {
 
 // The stringify method takes a value and an optional replacer, and an optional
 // space parameter, and returns a JSON text. The replacer can be a function
@@ -2406,7 +2410,7 @@ if (typeof JSON !== "object") {
                 typeof replacer !== "object"
                 || typeof replacer.length !== "number"
             )) {
-                throw new Error("JSON.stringify");
+                throw new Error("JSON2.stringify");
             }
 
 // Initialize the reference keeper.
@@ -2423,8 +2427,8 @@ if (typeof JSON !== "object") {
 
 // If the JSON object does not yet have a parse method, give it one.
 
-    if (typeof JSON.parse !== "function") {
-        JSON.parse = function (text, reviver) {
+    if (typeof JSON2.parse !== "function") {
+        JSON2.parse = function (text, reviver) {
 
 // The parse method takes a text and an optional reviver function, and returns
 // a JavaScript value if the text is a valid JSON text.
@@ -2541,7 +2545,7 @@ if (typeof JSON !== "object") {
 
 // If the text is not JSON parseable, then a SyntaxError is thrown.
 
-            throw new SyntaxError("JSON.parse");
+            throw new SyntaxError("JSON2.parse");
         };
     }
 }());
@@ -2571,37 +2575,50 @@ if (typeof JSON !== "object") {
 		#ENDIF
 		TEXT TO cCode NOSHOW
 
+// OBJETO PARA INTERCAMBIAR DATOS ENTRE VFP Y JS
 var buff = {
 	json: "",
-	normalize: true
+	normalize: true,
+	lasterror: ""
 }
 
+// PERMITE CAMBIAR EL VALOR DE UNA PROPIEDAD DEL
+// OBJETO buff.
 function set(name, value) {
 	buff[name] = value;
 }
 
+// PERMITE OBTENER EL VALOR ACTUAL DE UNA PROPIEDAD
+// DEL OBJETO buff
 function get(name) {
 	return buff[name];
 }
 
-function parseJSON() {
-	var o = null;
-	buff.lasterror = "";
-	try {
-		o = JSON.parse(buff.json);
-	    if (buff.normalize) o = analyze(o);
 
-	} catch (ex) {
-	    o = null;
-	    buff.lastError = ex.message;
-	}
-	return o;
+// ENCAPSULA UN ARRAY JS EN UNA FUNCION PARA PODER
+// LUEGO ACCEDER A LOS DATOS DESDE VFP.  ESTA FUNCION
+// FUE NECESARIA PARA PODER MANEJAR LA DIFERENCIA DE
+// SINTAXIS ENTRE LA VERSION 5 Y 11 DEL JSScriptControl
+function foxArray(items) {
+   return {
+     data: items, 
+     count: items.length, 
+     item: function(index) { 
+         return items[index]; 
+     }
+   }
 }
 
 
-function analyze(value, name) {
+// NORMALIZA UN OBJETO JSON DE MODO QUE TODAS
+// LAS PROPIEDADES ESTEN RESPRESENTADAS POR 
+// UN OBJETO CON INFORMACION QUE LUEGO VFP
+// PUEDE USAR PARA RECONSTRUIR EL OBJETO JSON
+// ORIGINAL CON OBJETOS DE VFP.
+function normalize(value, name, path) {
 	var node = {
-	    name: name,
+	    name: name || "root",
+	    path: path || "",
 		type: typeof value,
 		value: value
 	}
@@ -2609,26 +2626,49 @@ function analyze(value, name) {
 	if (node.type == "object" && value && value.constructor && value.constructor === Array)
 		node.type = "array";
 	
+	var path = ((node.path) ? node.path + "." : "") + node.name
 	switch (node.type) {
 		case "object":
 		    node.value = [];
 		    for (k in value) {
             	if (Object.prototype.hasOwnProperty.call(value, k)) {
-            		node.value.push(analyze(value[k], k));	
+            		node.value.push(normalize(value[k], k, path));	
             	}
             }
+		    node.value = foxArray(node.value);		    
 			break;
 			
 		case "array":
-		    node.value = [];
+	  	    node.value = [];
 		    for (var i = 0; i < value.length; i++) {
-		    	node.value.push(analyze(value[i]));
+		        var elem = normalize(value[i], "item" + i.toString(), path);
+		    	node.value.push(elem);
 		    }
+		    node.value = foxArray(node.value);		    
 			break;
 	}
 	
 	return node;
 }
+
+
+// APLICA PARSING JSON AL STRING INDICADO EN 
+// LA PROPIEDAD json DEL OBJETO buff.
+function parseJSON() {
+	var o = null;
+	buff.lasterror = "";
+  
+	try {
+		o = JSON2.parse(buff.json);
+	    if (buff.normalize) o = normalize(o);
+
+	} catch (ex) {
+	    o = null;
+	    buff.lasterror = (ex.message || "unkown error (invalid JSON string?)");
+	}
+	return o;
+}
+
 		ENDTEXT
 		#IF VERSION(5) = 600
 			SET PRINT OFF
@@ -2645,20 +2685,22 @@ function analyze(value, name) {
 		IF PCOUNT() = 1
 			poJS = THIS._getFastParser()
 		ENDIF
-	    LOCAL cType,fo,oNode
+	    LOCAL cType,fo,oNode,i
 	    cType = poNode.type
 	    DO CASE
 	       CASE cType == "object"
 	            fo = CREATEOBJECT(_Empty)
-	            FOR EACH oNode IN poNode.value
+	            FOR i = 1 TO poNode.value.count
+	                oNode = poNode.value.item(i - 1)
 	            	IF TYPE("oNode.name")<>"U"   && REQUIRED TO VOID "phantom" NODES
 	            		ADDPROPERTY(fo, oNode.name, THIS._js2fox(oNode, poJS) )
 	            	ENDIF
-	            ENDFOR
+	            ENDF	            
 	            
 	       CASE cType == "array"
 	            fo = CREATEOBJECT("Collection")
-	            FOR EACH oNode IN poNode.value 
+	            FOR i = 1 TO poNode.value.count
+	                oNode = poNode.value.item(i - 1)
 	            	IF TYPE("oNode.Name") <> "U"   && REQUIRED TO VOID "phantom" NODES
 	            		fo.add( THIS._js2fox(oNode, poJS) )
 	            	ENDIF

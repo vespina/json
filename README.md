@@ -1,7 +1,7 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.32
+Version: 1.33
 
 Author: V. Espina / A. Ferreira
 
@@ -243,6 +243,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|01/24/2025|VES|New version 1.33. Force to use our own JSON parser instead the native (if availale). Changes to support version 11 of JSScriptControl included in Windows 11 24H2|
 |01/24/2025|VES|New version 1.32. Several small fixed. Lasterror is now initialized on every public method |
 |05/10/2024|VES|New version 1.30. New property ignoreInvalidChars |
 |04/22/2024|VES|New version 1.29. Fix on httpRequest to get the right value in RAW property for binary responses |
