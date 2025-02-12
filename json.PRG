@@ -520,7 +520,10 @@ DEFINE CLASS json AS Custom
   	                   uBuff = CTOD("^" + uBuff)
   	                   
   	              OTHERWISE
-  	                   uBuff = THIS.unescapeHTML(uBuff)     
+  	                   uBuff = THIS.unescapeHTML(uBuff)
+  	                   IF ATC("\u", uBuff) > 0
+  	                   	  uBuff = THIS.decodeUnicode(uBuff)
+  	                   ENDIF     
 	           ENDCASE
 	         
 	      CASE VARTYPE(uBuff) = "O"
@@ -1916,6 +1919,32 @@ DEFINE CLASS json AS Custom
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&omega;", "?")
 	    
 	    RETURN lcDecodedHtml
+	ENDFUNC
+
+
+	FUNCTION decodeUnicode(tcText)
+	    LOCAL lcText, lcUnicode, lcChar
+	    lcText = ""
+	    
+	    LOCAL ARRAY aTokens[1]
+	    LOCAL nTokens,nToken,cToken
+	    #IF VERSION(5) = 900
+	        nTokens = ALINES(aTokens, tcText, "\u")
+	    #ELSE
+	        nTokens = ALINES(aTokens, STRT(tcText, "\u", CHR(13)))	    
+	    #ENDIF
+	    
+	    FOR nToken = 1 TO nTokens
+	        cToken = aTokens[nToken]
+	        IF nToken > 1
+	           lcUnicode = LEFT(cToken,4)
+	           lcChar = CHR(VAL("0x" + lcUnicode))
+	           cToken = lcChar + SUBSTR(cToken,5)
+	        ENDIF
+	        lcText = lcText + cToken
+	    ENDFOR
+	    	    
+	    RETURN lcText
 	ENDFUNC
 
 

@@ -253,7 +253,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
-|02/12/2025|VES|Improvements over unescapeHTML method. New options for toCursor method|
+|02/12/2025|VES|Improvements over unescapeHTML method. New options for toCursor method. Support to decode unicode characters|
 |02/01/2025|VES|New version 1.33. Force to use our own JSON parser instead the native (if availale). Changes to support version 11 of JSScriptControl included in Windows 11 24H2|
 |01/24/2025|VES|New version 1.32. Several small fixed. Lasterror is now initialized on every public method |
 |05/10/2024|VES|New version 1.30. New property ignoreInvalidChars |
