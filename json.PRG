@@ -163,6 +163,7 @@
 	#DEFINE VFP_JSON_MSG_020			"The schema is empty"
 	#DEFINE VFP_JSON_MSG_021			"The provided JSON is not an array of objects"
 	#DEFINE VFP_JSON_MSG_022			"Alias already exists"
+	#DEFINE VFP_JSON_MSG_023            "Invalid schema object"
 #ENDIF
 
 #IF VFP_JSON_LANG == "ES"
@@ -188,6 +189,7 @@
 	#DEFINE VFP_JSON_MSG_020			"El esquema está vacío"
 	#DEFINE VFP_JSON_MSG_021			"El JSON proporcionado no es un array de objetos"
 	#DEFINE VFP_JSON_MSG_022			"El alias ya existe"
+	#DEFINE VFP_JSON_MSG_023            "Objeto schema invalido"
 #ENDIF
 
 
@@ -308,6 +310,9 @@ DEFINE CLASS json AS Custom
 	    ENDPROC        
     #ENDIF
     
+    
+    FUNCTION Options
+    	RETURN CREATEOBJECT("jsonOptions")
 
     HIDDEN PROCEDURE _fastParse(pcJSON)
 	    LOCAL oJS,oJSON,oData
@@ -1143,6 +1148,9 @@ DEFINE CLASS json AS Custom
 	* Takes an JSON object array and try to create
 	* a cursor with it.
 	*
+	* Option parameter poOptions should be a instance 
+	* of toCursorOptions class.
+	*
 	PROCEDURE toCursor(poJSON, pcAlias, pnDSID, poOptions)
 	 *
 	 LOCAL nStarted
@@ -1174,35 +1182,48 @@ DEFINE CLASS json AS Custom
 	 * Determine the cursor structure by analizing the first element. We also
 	 * create an instance of the element's baseclass, to rule out inhereted
 	 * properties.
-	 LOCAL oRow,nCount,i,cProp,uValue,oSchema,oColumn,oObjProps,oBase
-	 LOCAL ARRAY aProps[1]
-	 oRow = poJSON.Item[1]
-	 IF TYPE("oRow.baseClass") = "C"
-	 	oBase = CREATE(oRow.baseClass)
+	 * 
+	 * VES FEB 2025
+	 * WE BYPASS THIS ACTION IF AN SCHEMA WAS PROVIDED VIA poOptions PARAMETER
+	 *
+	 LOCAL oSchema,oColumn
+	 IF TYPE("poOptions.Schema.Name") = "C"
+	 	IF  LOWER(poOptions.Schema.Class) <> "jsonschema" ;
+	 	AND LOWER(poOptions.Schema.parentClass) <> "jsonschema"
+	 		THROW(VFP_JSON_MSG_023)
+	 	ENDIF
+	 	oSchema = poOptions.Schema
+	 	
 	 ELSE
-	 	oBase = NULL
-	 ENDIF
-	 oSchema = CREATEOBJECT("jsonSchema")
+		 LOCAL oRow,nCount,i,cProp,uValue,oSchema,oBase
+		 LOCAL ARRAY aProps[1]
+		 oRow = poJSON.Item[1]
+		 IF TYPE("oRow.baseClass") = "C"
+		 	oBase = CREATE(oRow.baseClass)
+		 ELSE
+		 	oBase = NULL
+		 ENDIF
+		 oSchema = CREATEOBJECT("jsonSchema")
+		 nCount = AMEMBERS(aProps, oRow)
+		 FOR i = 1 TO nCount
+		  cProp = LOWER(aProps[i])
+		  IF (!ISNULL(oBase) AND TYPE("oBase." + cProp)<>"U") ;
+		  OR INLIST(UPPER(cProp),"PARENT")
+		  	LOOP
+		  ENDIF
+		  uValue = GETPEM(oRow, cProp)
+		  oColumn = CREATEOBJECT("jsonColumn")
+		  oColumn.initWithValue(uValue, cProp)
+		  oSchema.addColumn(oColumn)
+		 ENDFOR
+	 ENDIF	 
+	 LOCAL oObjProps
 	 oObjProps = CREATEOBJECT("Collection")
-	 nCount = AMEMBERS(aProps, oRow)
-	 FOR i = 1 TO nCount
-	  cProp = LOWER(aProps[i])
-	  IF (!ISNULL(oBase) AND TYPE("oBase." + cProp)<>"U") ;
-	  OR INLIST(UPPER(cProp),"PARENT")
-	  	LOOP
-	  ENDIF
-	  uValue = GETPEM(oRow, cProp)
-	  oColumn = CREATEOBJECT("jsonColumn")
-	  oColumn.initWithValue(uValue, cProp)
-	  oSchema.addColumn(oColumn)
-	  IF oColumn.Type = "M"
-	   oObjProps.Add(cProp)
-	  ENDIF
-	  IF VARTYPE(uValue) = "O" AND TYPE("poOptions." + cProp + ".parentId") = "C"
-	   
-	  ENDIF
+	 FOR EACH oColumn IN oSchema.Columns
+		IF oColumn.Type = "M"
+		   oObjProps.Add(cProp)
+		ENDIF	 
 	 ENDFOR
-	 
 	 
 	 oSchema.toCursor(pcalias, SET("DATASESSION"))
 	 IF THIS.lastError.hasError
@@ -3748,6 +3769,23 @@ DEFINE CLASS JSONSingletonPattern AS Custom
  ENDPROC
  *
 ENDDEFINE
+
+
+* JSONOPTIONS (CLASS)
+* OPTIONS FOR SOME OPERATIONS IN JSON CLASS
+*
+DEFINE CLASS jsonOptions AS Custom
+	* toCursor()
+	schema = NULL     && USE THIS SCHEMA INSTEAD OF INFERING ONE FROM DATA
+    
+    * toXml()
+    style = 0         && 0-Values as nodes,  1-Values as attributes
+    case = 0          && 0-Lower, 1-upper
+    beautify = .T.    
+    margin = 0 
+    header = .T.	
+ENDDEFINE
+
 
 
 * VFPLEGACY.PRG

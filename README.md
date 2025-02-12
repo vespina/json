@@ -103,8 +103,18 @@ the cursor data (using toCursor).
 
     string = JSON.Stringify("alias" [,withSchema] [,datasession]) [8]
     JSON.parseCursor(string [, "alias"] [,datasession]) [1]
-    JSON.toCursor(string | object, "alias" [,datasession]) [2]
+    JSON.toCursor(string | object, "alias" [,datasession, options]) [2]
 
+*NEW IN 1.33*
+The optional options parameter can be used to supply a custom schema to be used to parse
+the cursor (instead of building one automatically from the data):
+
+    LOCAL loOptions
+    loOptions = JSON.options()
+    loOptions.schema = JSON.schemas.newFromCursor("schema_name", "cursor-alias", datasessionid)
+    
+    JSON.toCursor("json-string","cursor-alias",[datasessionid],loOptions)
+    
 
 ### SCHEMAS
 Schemas allows to declare public reusable cursor structures (schemas) and 
@@ -243,7 +253,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
-|02/12/2025|VES|Improvements over unescapeHTML method|
+|02/12/2025|VES|Improvements over unescapeHTML method. New options for toCursor method|
 |02/01/2025|VES|New version 1.33. Force to use our own JSON parser instead the native (if availale). Changes to support version 11 of JSScriptControl included in Windows 11 24H2|
 |01/24/2025|VES|New version 1.32. Several small fixed. Lasterror is now initialized on every public method |
 |05/10/2024|VES|New version 1.30. New property ignoreInvalidChars |
