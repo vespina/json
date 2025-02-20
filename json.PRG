@@ -231,6 +231,7 @@ DEFINE CLASS json AS Custom
 	normalizeResults = .T.              && (fastParsing only). Converts JS object to Fox object
 	ignoreInvalidChars = .T.            && Ignore invalid chars in property names
 	httpClient = 0                      && HTTP client to be used (0:serverXMLHTTP6, 1:XMLHTTP6, 2:XMLHTTP)
+	encodeHTMLEntities = .T.            && Encode HTML entities when stringifiying
 	
 	HIDDEN oFastParser                  && Rerence to the fast parser
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
@@ -979,7 +980,10 @@ DEFINE CLASS json AS Custom
 		      cValueType = VARTYPE(uValue)
 		      DO CASE
 		         CASE cValueType $ "CM"
-		              cValue = ["] + THIS.escapeHTML(RTRIM(uValue)) + ["]
+		              IF THIS.encodeHTMLEntities
+		              	uValue = THIS.escapeHTML(RTRIM(uValue))
+		              ENDIF
+		              cValue = ["] + uValue + ["]
 		              
 		         CASE cValueType $ "NIYF"
 		              IF INT(uValue) = uValue
@@ -1056,7 +1060,10 @@ DEFINE CLASS json AS Custom
 	 
 	 DO CASE
 	    CASE cType = "C"    && String value
-	         pcOut = pcOut + ["] + THIS.escapeHTML(ALLTRIM(puData)) + ["]
+	         IF THIS.encodeHTMLEntities
+	         	puData = THIS.escapeHTML(ALLTRIM(puData))
+	         ENDIF
+	         pcOut = pcOut + ["] + puData + ["]
 
 	    CASE cType = "N" AND puData = INT(puData)  && Int value
 	         pcOut = pcOut + ALLTRIM(STR(puData))
@@ -1344,7 +1351,10 @@ DEFINE CLASS json AS Custom
       
       DO CASE
 	    CASE cType = "C"    && String value
-	         uValue = THIS.escapeHTML(ALLTRIM(uValue))
+	         uValue = ALLTRIM(uValue)
+	         IF THIS.encodeHTMLEntities
+	         	uValue = THIS.escapeHTML(uValue)
+	         ENDIF
 
 	    CASE cType = "N" AND uValue = INT(uValue)  && Int value
 	         uValue = ALLTRIM(STR(uValue))
