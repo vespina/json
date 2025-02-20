@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.33
+* Version: 1.34
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -236,7 +236,7 @@ DEFINE CLASS json AS Custom
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.33
+	 RETURN 1.34
 	ENDPROC
 	
     
@@ -830,6 +830,7 @@ DEFINE CLASS json AS Custom
 	 *
 	 LOCAL cJSON,cType,oRow,nWkArea,nRow,nCount,i,j,cProp,uValue,cValue,cValueType,nColumns,cTokenSep,nStarted
 	 LOCAL ARRAY aProps[1]
+	 LOCAL ARRAY aValue[1]
 	 cJSON = ""
 	 nWkArea = SELECT()
 	 cType = VARTYPE(puObjectOrAlias)
@@ -838,7 +839,7 @@ DEFINE CLASS json AS Custom
  	 IF !EMPTY(pnDSID)
  	  SET DATASESSION TO (pnDSID)
  	 ENDIF	 
-	 
+ 	 
 	 * Check if value passed is an array. An array is:
 	 * a) An object with a baseClass equal to "Collection" and a Count property [1]
 	 * b) An array
@@ -892,8 +893,14 @@ DEFINE CLASS json AS Custom
 		        LOOP
 		       ENDIF
 		      #ENDIF
-		      uValue = GETPEM(puObjectOrAlias, cProp)
-		      cValue = THIS.Stringify(uValue,,,,.T.)
+		      lIsArray = (TYPE("ALEN(puObjectOrAlias.&cProp)") = "N")
+		      IF lIsArray
+		        ACOPY(puObjectOrAlias.&cProp, aValue)
+		        cValue = THIS.stringify(@aValue,,,,.T.)
+		      ELSE
+		        uValue = GETPEM(puObjectOrAlias, cProp)
+		      	cValue = THIS.Stringify(uValue,,,,.T.)
+		      ENDIF		      
 		      IF !ISNULL(cValue)
 		       IF THIS.useStrictNotation
 		        cProp = ["] + cProp + ["]
@@ -910,7 +917,7 @@ DEFINE CLASS json AS Custom
 	          cJSON = cJSON + IIF(i > 1,",","") + THIS.Stringify(puObjectOrAlias.Item[i],,,,.T.)
 	         ENDFOR
 	         cJSON = cJSON + "]"
-	    
+	    	    
 	    
 	    CASE cType<>"O" AND lIsArray     && Array 
 	         EXTERNAL ARRAY puObjectOrAlias
@@ -1159,7 +1166,6 @@ DEFINE CLASS json AS Custom
 	 LOCAL nStarted
 	 nStarted = SECONDS()
 	 THIS.lastError.Clear()
-	 
 	 * If received a JSON string, parse it first
 	 IF VARTYPE(poJSON) = "C"
 	  poJSON = THIS.Parse(poJSON)
@@ -1224,7 +1230,7 @@ DEFINE CLASS json AS Custom
 	 oObjProps = CREATEOBJECT("Collection")
 	 FOR EACH oColumn IN oSchema.Columns
 		IF oColumn.Type = "M"
-		   oObjProps.Add(cProp)
+		   oObjProps.Add(oColumn.name)
 		ENDIF	 
 	 ENDFOR
 	 
