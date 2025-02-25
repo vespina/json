@@ -847,12 +847,14 @@ DEFINE CLASS json AS Custom
 	 *
 	 * [1] The Count property verification is required to avoid an error when stringifing SCX files as cursors, because SCX
 	 *     doesn contains a BASECLASS column and could contains Collection objets, wich would be wrongly tested as "array".
-     LOCAL lIsArray
-	 lIsArray = ((cType = "O" AND PEMSTATUS(puObjectOrAlias,"baseClass",5) AND ;
-	                              PEMSTATUS(puObjectOrAlias, "Count", 5) AND ;
-	                              PEMSTATUS(puObjectOrAlias, "Item", 5) AND ;
-	                              LOWER(puObjectOrAlias.baseClass) == "collection") OR ;
-	             (TYPE("ALEN(puObjectOrAlias)") = "N"))
+     LOCAL lIsArray,lIsCollection
+	 lIsCollection = (cType = "O" AND ;
+	                  PEMSTATUS(puObjectOrAlias,"baseClass",5) AND ;
+	                  PEMSTATUS(puObjectOrAlias, "Count", 5) AND ;
+	                  PEMSTATUS(puObjectOrAlias, "Item", 5) AND ;
+	                  LOWER(puObjectOrAlias.baseClass) == "collection")
+	 lIsArray = (!lIsCollection AND TYPE("ALEN(puObjectOrAlias)") = "N")
+
 	 
 	 
 	 * Checkl if value passed is a JS object
@@ -871,7 +873,7 @@ DEFINE CLASS json AS Custom
 	         RETURN oJS.Eval([(JSON2.stringify(obj))])
 	    
 	    
-	    CASE cType = "O" AND !lIsArray  && Object
+	    CASE cType = "O" AND !lIsCollection AND !lIsArray  && Object
 	     	 nCount = AMEMBERS(aProps,puObjectOrAlias,1)
 	     	 #IF VERSION(5) < 800
 	     	  LOCAL lEmptyObject,oLine
@@ -912,7 +914,7 @@ DEFINE CLASS json AS Custom
 	         cJSON = "{" + cJSON + "}"
 	    
 
-	    CASE cType = "O" AND lIsArray     && Array (Collection)
+	    CASE lIsCollection     && Array (Collection)
 	         cJSON = "["
 	         FOR i = 1 TO puObjectOrAlias.Count
 	          cJSON = cJSON + IIF(i > 1,",","") + THIS.Stringify(puObjectOrAlias.Item[i],,,,.T.)
@@ -920,7 +922,7 @@ DEFINE CLASS json AS Custom
 	         cJSON = cJSON + "]"
 	    	    
 	    
-	    CASE cType<>"O" AND lIsArray     && Array 
+	    CASE lIsArray     && Array 
 	         EXTERNAL ARRAY puObjectOrAlias
 	         nColumns = MAX(ALEN(puObjectOrAlias, 2), 1)   && Because a one dimension array returns 0 for ALEN(2)
 	         cJSON = "["
