@@ -325,7 +325,8 @@ DEFINE CLASS json AS Custom
 	    oJSON = oJS.run("parseJSON")
 	    IF !ISNULL(oJSON)
 		    IF THIS.normalizeResults
-		     	oJSON = THIS._js2fox(oJSON)
+		     	oJSON = THIS._js2fox(oJSON, oJS)
+		     	DOEVENTS
 		    ENDIF
 		ELSE
 			THIS.lastError.initWithString(oJS.run("get","lasterror"))

@@ -253,6 +253,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|02/27/2025|VES|Small fix on fastparse method to avoid program freeze after two consecutives call to fastParse.|
 [02/20/2025|VES|Fix for toCursor() method when a row contained other objects. Fix to stringify() method to correctly encode array properties. New encodeHTMLEntities property |
 |02/12/2025|VES|Improvements over unescapeHTML method. New options for toCursor method. Support to decode unicode characters|
 |02/01/2025|VES|New version 1.33. Force to use our own JSON parser instead the native (if availale). Changes to support version 11 of JSScriptControl included in Windows 11 24H2|
