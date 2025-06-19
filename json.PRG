@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.34
+* Version: 1.35
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -414,6 +414,9 @@ DEFINE CLASS json AS Custom
 	          
 	     CASE cChar = ":" AND nMode = 1   && Close property name
 	          cProp = ALLTRIM(uBuff)
+	          IF ISDIGIT(cProp)         && CHECK FOR NUMERIC PROPERTIES (THANKS TO aless133)
+				cProp="_"+cProp
+			  ENDIF
 	          uBuff = ""
 	          nMode = 2
 	          lIsString = .F.
@@ -1936,6 +1939,10 @@ DEFINE CLASS json AS Custom
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&chi;", "?")
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&psi;", "?")
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&omega;", "?")
+
+		* Croatian letters
+		lcDecodedHtml = STRTRAN(lcDecodedHtml, "&aelig;" , "c")
+		lcDecodedHtml = STRTRAN(lcDecodedHtml, "&AElig;" , "C")		
 	    
 	    RETURN lcDecodedHtml
 	ENDFUNC
