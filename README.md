@@ -30,6 +30,9 @@ to use local instances, then you can instantiate the class this way:
     ENDIF
     ?oPerson.firstName --> "Victor"
     
+*IMPORTANT*
+Numeric properties will be parsed with an "_" prefix, since VFP does not support property names starting with numbers.    
+    
 #### To convert an object into a JSON string
     LOCAL oPerson,cPerson
     oPerson = CREATE("Empty")
@@ -38,8 +41,11 @@ to use local instances, then you can instantiate the class this way:
     ADDProperty(oPerson, "YOB", 1970)
     
     cPerson = JSON.Stringify(oPerson)
-    ?cPerson -> '{ "firstName" : "Victor", "lastName": "Espina", "YOB": 1970 }'
+    ?cPerson -> '{ "firstname" : "Victor", "lastname": "Espina", "yob": 1970 }'
 
+*IMPORTANT*
+Properties casing on the object will not be preserved into the JSON string. All properties will be added as lowercase. This is a VFP limitation.
+    
 #### To convert an array into a JSON string
     LOCAL ARRAY aFruits[3]
     aFruits[1] = "Apple"
@@ -253,6 +259,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|06/19/2025|VES|Version 1.35. Fix for numeric properties (thanks to aless133) |
 |02/27/2025|VES|Small fix on fastparse method to avoid program freeze after two consecutives call to fastParse.|
 [02/20/2025|VES|Fix for toCursor() method when a row contained other objects. Fix to stringify() method to correctly encode array properties. New encodeHTMLEntities property |
 |02/12/2025|VES|Improvements over unescapeHTML method. New options for toCursor method. Support to decode unicode characters|
