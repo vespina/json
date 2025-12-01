@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.35
+* Version: 1.36
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -238,7 +238,7 @@ DEFINE CLASS json AS Custom
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.35
+	 RETURN 1.36
 	ENDPROC
 	
     
