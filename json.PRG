@@ -232,12 +232,13 @@ DEFINE CLASS json AS Custom
 	ignoreInvalidChars = .T.            && Ignore invalid chars in property names
 	httpClient = 0                      && HTTP client to be used (0:serverXMLHTTP6, 1:XMLHTTP6, 2:XMLHTTP)
 	encodeHTMLEntities = .T.            && Encode HTML entities when stringifiying
+	mssqlCompat = .F.                   && Permite activar compatibilidda con JSON de SQL Server
 	
 	HIDDEN oFastParser                  && Rerence to the fast parser
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.34
+	 RETURN 1.35
 	ENDPROC
 	
     
@@ -536,10 +537,10 @@ DEFINE CLASS json AS Custom
 	      CASE VARTYPE(uBuff) = "X" OR LOWER(uBuff) == "null"
 	           uBuff = NULL
 	          
-	      CASE LOWER(uBuff) == "false"      
+	      CASE LOWER(uBuff) == "false" OR (THIS.mssqlCompat AND uBuff == "0")     
 	           uBuff = .F.
 	           
-	      CASE LOWER(uBuff) == "true"
+	      CASE LOWER(uBuff) == "true" OR (THIS.mssqlCompat AND uBuff == "1")     
 	           uBuff = .T.
 	      
 	      OTHERWISE
@@ -552,7 +553,8 @@ DEFINE CLASS json AS Custom
 	   IF lIsArray
 	    oTarget.Add(uBuff)
 	    uBuff = ""
-	    nMode = 2	    
+	    nMode = 2	   
+	    lIsString = .F. 
 	   ELSE
 	    IF !EMPTY(cProp)	     
 	     #IF VERSION(5) >= 900
@@ -568,6 +570,7 @@ DEFINE CLASS json AS Custom
 	    nMode = 0 
 	    cProp = ""
 	    uBuff = ""
+	    lIsString = .F.
 	   ENDIF
 	  ENDIF
 	  
@@ -1012,6 +1015,9 @@ DEFINE CLASS json AS Custom
 		         
 		         CASE cValueType = "L"
 		              cValue = IIF(uValue,"true","false")     
+		              IF THIS.mssqlCompat
+		              	cValue = IIF(uValue,"1","0")
+		              ENDIF
 		           
 		         CASE cValueType = "X"
 		              cValue = "null"

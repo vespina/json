@@ -218,6 +218,13 @@ The *resp* object contains the following properties:
     errorMsg:  string with the description of the error ocurred during the request
     
 
+
+### SQL Server Compatibility
+IF you need to send o read JSON strings from SQL Server, set mssqlCompat property to .T., so JSON library
+can generate SQL Server compatible JSON strings and can sucesfully parse SQL Server generated JSON strings.
+
+
+
 ### NOTES
 [1] The JSON string must be generated using Stringify method and INCLUDE the cursor schema. To convert other JSON strings to cursor, use toCursor().
 
@@ -259,6 +266,7 @@ The *resp* object contains the following properties:
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|12/01/2025|VES|Version 1.36. New mssqlCompat property to activate compatibility with MS SQL Server|
 |06/19/2025|VES|Version 1.35. Fix for numeric properties (thanks to aless133) |
 |02/27/2025|VES|Small fix on fastparse method to avoid program freeze after two consecutives call to fastParse.|
 [02/20/2025|VES|Fix for toCursor() method when a row contained other objects. Fix to stringify() method to correctly encode array properties. New encodeHTMLEntities property |
