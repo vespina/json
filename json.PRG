@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.36
+* Version: 1.37
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -136,6 +136,9 @@
 
 #DEFINE VFP_JSON_LANG		        "EN"    && Cambiar a ES para mensajes en espanol
 #DEFINE VFP_NOENCODABLE_PROPS		"-controls-controlcount-objects-parent-class-baseclass-classlibrary-parentclass-helpcontextid-whatsthishelpid-top-left-width-height-picture-_customproplist-activecontrol-activeform-forms-"
+#DEFINE VFP_VALID_PROP_CHARS		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + ;
+									"¡…Õ”⁄‹—·ÈÌÛ˙¸Ò" + ;
+									"0123456789_"
 #DEFINE VFP_JSON_BEAUTIFY_MARGIN	2
 #DEFINE CRLF 						CHR(13)+CHR(10)
 #DEFINE VFP_MAX_INT					2147483647
@@ -238,7 +241,7 @@ DEFINE CLASS json AS Custom
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.36
+	 RETURN 1.37
 	ENDPROC
 	
     
@@ -418,6 +421,10 @@ DEFINE CLASS json AS Custom
 	          IF ISDIGIT(cProp)         && CHECK FOR NUMERIC PROPERTIES (THANKS TO aless133)
 				cProp="_"+cProp
 			  ENDIF
+			  
+			  * VES ENE 2026
+			  cProp = CHRTRAN(cProp, CHRTRAN(cProp, VFP_VALID_PROP_CHARS, ""), "")
+			  
 	          uBuff = ""
 	          nMode = 2
 	          lIsString = .F.
@@ -1978,6 +1985,22 @@ DEFINE CLASS json AS Custom
 	    	    
 	    RETURN lcText
 	ENDFUNC
+	
+	
+	FUNCTION getHeaderValue(pcHeaders, pcHeader)
+		LOCAL ARRAY aHeaders[1]
+		LOCAL nCount,nHeader,cHeader,cValue
+		cValue = NULL
+		nCount = ALINES(aHeaders, pcHeaders)
+		FOR nHeader = 1 TO nCount
+			cHeader = aHeaders[nHeader]
+			IF LEFT(cHeader, LEN(pcHeader)) == pcHeader
+				cValue = ALLTRIM(STRT(cHeader, pcHeader + ": ", ""))
+				EXIT
+			ENDIF
+		ENDFOR
+		RETURN cValue
+		
 
 
 	* getFastParser (Method)
