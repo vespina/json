@@ -266,7 +266,7 @@ can generate SQL Server compatible JSON strings and can sucesfully parse SQL Ser
 
 |Date         |User|Description|
 |-------------|----|-----------|
-|12/13/2025|VES|Version 1.37. New method getHeaderValue|
+|01/15/2026|VES|Version 1.37. New method getHeaderValue. Invalid characters on properties name are now removed|
 |12/01/2025|VES|Version 1.36. New mssqlCompat property to activate compatibility with MS SQL Server|
 |06/19/2025|VES|Version 1.35. Fix for numeric properties (thanks to aless133) |
 |02/27/2025|VES|Small fix on fastparse method to avoid program freeze after two consecutives call to fastParse.|
