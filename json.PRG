@@ -135,7 +135,11 @@
 
 
 #DEFINE VFP_JSON_LANG		        "EN"    && Cambiar a ES para mensajes en espanol
-#DEFINE VFP_NOENCODABLE_PROPS		"-controls-controlcount-objects-parent-class-baseclass-classlibrary-parentclass-helpcontextid-whatsthishelpid-top-left-width-height-picture-_customproplist-activecontrol-activeform-forms-"
+#IF VERSION(5) < 800
+	#DEFINE VFP_NOENCODABLE_PROPS		"-controls-controlcount-objects-parent-class-baseclass-classlibrary-parentclass-helpcontextid-whatsthishelpid-top-left-width-height-picture-_customproplist-activecontrol-activeform-forms-"
+#ELSE
+	#DEFINE VFP_NOENCODABLE_PROPS		""
+#ENDIF
 #DEFINE VFP_VALID_PROP_CHARS		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + ;
 									"ÁÉÍÓÚÜÑáéíóúüñ" + ;
 									"0123456789_"
@@ -236,12 +240,13 @@ DEFINE CLASS json AS Custom
 	httpClient = 0                      && HTTP client to be used (0:serverXMLHTTP6, 1:XMLHTTP6, 2:XMLHTTP)
 	encodeHTMLEntities = .T.            && Encode HTML entities when stringifiying
 	mssqlCompat = .F.                   && Permite activar compatibilidda con JSON de SQL Server
+	encodeAllProps = .F.                && Indica que se deben codificar todas las propiedades del objeto
 	
 	HIDDEN oFastParser                  && Rerence to the fast parser
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.37
+	 RETURN 1.38
 	ENDPROC
 	
     
@@ -901,7 +906,7 @@ DEFINE CLASS json AS Custom
 	           LOOP
 	          ENDIF
 		      cProp = LOWER(aProps[i,1])
-		      IF "-"+LOWER(cProp)+"-" $ VFP_NOENCODABLE_PROPS
+		      IF !THIS.encodeAllProps AND "-"+LOWER(cProp)+"-" $ VFP_NOENCODABLE_PROPS
 		       LOOP
 		      ENDIF
 
@@ -915,8 +920,13 @@ DEFINE CLASS json AS Custom
 		        ACOPY(puObjectOrAlias.&cProp, aValue)
 		        cValue = THIS.stringify(@aValue,,,,.T.)
 		      ELSE
-		        uValue = GETPEM(puObjectOrAlias, cProp)
-		      	cValue = THIS.Stringify(uValue,,,,.T.)
+		        _TRY
+		        	uValue = GETPEM(puObjectOrAlias, cProp)
+		      	    cValue = THIS.Stringify(uValue,,,,.T.)		        	
+		        _CATCH
+	       			THIS.lastError.initWithEx(ex)
+	       			cValue = ["<<"] + ex.MEssage + [>>"]
+	    		_ENDTRY
 		      ENDIF		      
 		      IF !ISNULL(cValue)
 		       IF THIS.useStrictNotation
