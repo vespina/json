@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.38
+* Version: 1.39
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -242,11 +242,10 @@ DEFINE CLASS json AS Custom
 	mssqlCompat = .F.                   && Permite activar compatibilidda con JSON de SQL Server
 	encodeAllProps = .F.                && Indica que se deben codificar todas las propiedades del objeto
 	
-	HIDDEN oFastParser                  && Rerence to the fast parser
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.38
+	 RETURN 1.39
 	ENDPROC
 	
     
@@ -259,10 +258,7 @@ DEFINE CLASS json AS Custom
       
       * Add Property for handle of jSon Errors
       THIS.lastError = CREATEOBJECT("jsonError")
-      THIS.lastError.clear()
-      
-      * FastParser will be created first time is required
-      THIS.oFastParser = NULL
+      THIS.lastError.clear()      
     ENDPROC 
     
     
@@ -334,8 +330,7 @@ DEFINE CLASS json AS Custom
 	    oJSON = oJS.run("parseJSON")
 	    IF !ISNULL(oJSON)
 		    IF THIS.normalizeResults
-		     	oJSON = THIS._js2fox(oJSON, oJS)
-		     	DOEVENTS
+		     	oJSON = THIS._js2fox(oJSON)
 		    ENDIF
 		ELSE
 			THIS.lastError.initWithString(oJS.run("get","lasterror"))
@@ -2017,16 +2012,19 @@ DEFINE CLASS json AS Custom
 	* RETURNS AN INSTANCE OF THE FAST PARSER
 	*
 	HIDDEN FUNCTION _getFastParser(plForceNewInstance)
-		IF !ISNULL(THIS.oFastParser) AND !plForceNewInstance
-			RETURN THIS.oFastParser
+		IF !PEMSTATUS(_Screen,"oJSONFastParser",5)
+			_Screen.AddProperty("oJSONFastParser",NULL)
 		ENDIF
-		THIS.oFastParser = CREATEOBJECT("MSScriptControl.ScriptControl")
-		WITH THIS.oFastParser
+		IF !ISNULL(_Screen.oJSONFastParser) AND !plForceNewInstance
+			RETURN _Screen.oJSONFastParser
+		ENDIF
+		_Screen.oJSONFastParser = CREATEOBJECT("MSScriptControl.ScriptControl")
+		WITH _Screen.oJSONFastParser
 			.Language = "JScript"
 			.addCode( THIS._getJSONParserCode() )
 			.addCode( THIS._getSupportCode() )
-		ENDWITH
-		RETURN THIS.oFastParser
+		ENDWITH		
+		RETURN _Screen.oJSONFastParser
 		
 	
 	
@@ -2782,10 +2780,7 @@ function parseJSON() {
 		RETURN cCode
 
 
-	HIDDEN FUNCTION _js2fox(poNode, poJS)
-		IF PCOUNT() = 1
-			poJS = THIS._getFastParser()
-		ENDIF
+	HIDDEN FUNCTION _js2fox(poNode)
 	    LOCAL cType,fo,oNode,i
 	    cType = poNode.type
 	    DO CASE
@@ -2794,7 +2789,7 @@ function parseJSON() {
 	            FOR i = 1 TO poNode.value.count
 	                oNode = poNode.value.item(i - 1)
 	            	IF TYPE("oNode.name")<>"U"   && REQUIRED TO VOID "phantom" NODES
-	            		ADDPROPERTY(fo, oNode.name, THIS._js2fox(oNode, poJS) )
+	            		ADDPROPERTY(fo, oNode.name, THIS._js2fox(oNode) )
 	            	ENDIF
 	            ENDF	            
 	            
@@ -2803,7 +2798,7 @@ function parseJSON() {
 	            FOR i = 1 TO poNode.value.count
 	                oNode = poNode.value.item(i - 1)
 	            	IF TYPE("oNode.Name") <> "U"   && REQUIRED TO VOID "phantom" NODES
-	            		fo.add( THIS._js2fox(oNode, poJS) )
+	            		fo.add( THIS._js2fox(oNode) )
 	            	ENDIF
 	            ENDFOR
 

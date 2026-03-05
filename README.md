@@ -1,7 +1,7 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.38
+Version: 1.39
 
 Author: V. Espina / A. Ferreira
 
@@ -266,6 +266,7 @@ can generate SQL Server compatible JSON strings and can sucesfully parse SQL Ser
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|03/05/2026|VES|Version 1.39. Methods getFastParser and js2fox refactored |
 [03/02/2026|VES|Version 1.38. Remove VFP_NONENCODABLE_PROPS for VFP9.  New property encodeAllProps.
 |01/15/2026|VES|Version 1.37. New method getHeaderValue. Invalid characters on properties name are now removed|
 |12/01/2025|VES|Version 1.36. New mssqlCompat property to activate compatibility with MS SQL Server|
