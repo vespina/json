@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.39
+* Version: 1.40
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -245,7 +245,7 @@ DEFINE CLASS json AS Custom
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.39
+	 RETURN 1.40
 	ENDPROC
 	
     
@@ -376,7 +376,7 @@ DEFINE CLASS json AS Custom
 	 ENDIF
 	 nNestLevel = 1
 
-	 
+ 
 	 FOR i = pnPos + 1 TO nLen
 	  *
 	  cChar = SUBSTR(pcJSON, i, 1)
@@ -416,7 +416,9 @@ DEFINE CLASS json AS Custom
 	     CASE  !INLIST(cChar, cStringSep, ":", SPACE(1)) AND nMode = 1  && Property name
 	          uBuff = uBuff + CHRTRAN(cChar,"-","_")
 	          
-	     CASE cChar = ":" AND nMode = 1   && Close property name
+	     CASE nMode = 1 ;
+	      AND ((!THIS.useStrictNotation AND cChar = ":") ;
+	       OR  (THIS.useStrictNotation AND cChar = cSTringSep))   && Close property name
 	          cProp = ALLTRIM(uBuff)
 	          IF ISDIGIT(cProp)         && CHECK FOR NUMERIC PROPERTIES (THANKS TO aless133)
 				cProp="_"+cProp
