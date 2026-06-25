@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.40
+* Version: 1.41
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -2791,7 +2791,9 @@ function parseJSON() {
 	            FOR i = 1 TO poNode.value.count
 	                oNode = poNode.value.item(i - 1)
 	            	IF TYPE("oNode.name")<>"U"   && REQUIRED TO VOID "phantom" NODES
-	            		ADDPROPERTY(fo, oNode.name, THIS._js2fox(oNode) )
+	            		IF LEFT(oNode.Name,1) <> "."  && AVOID INVALID PROPERTIES
+	            			ADDPROPERTY(fo, oNode.name, THIS._js2fox(oNode) )
+	            		ENDIF
 	            	ENDIF
 	            ENDF	            
 	            

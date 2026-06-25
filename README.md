@@ -266,6 +266,7 @@ can generate SQL Server compatible JSON strings and can sucesfully parse SQL Ser
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|25/06/2026|VES|Version 1.41. Solved a bug with invalid "phantom" properties when using fast parser more than once|
 |04/09/2026|VES|Version 1.40. Improved handling of non-valid characters on property names. |
 |03/05/2026|VES|Version 1.39. Methods getFastParser and js2fox refactored |
 [03/02/2026|VES|Version 1.38. Remove VFP_NONENCODABLE_PROPS for VFP9.  New property encodeAllProps.
