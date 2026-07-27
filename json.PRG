@@ -141,7 +141,7 @@
 	#DEFINE VFP_NOENCODABLE_PROPS		""
 #ENDIF
 #DEFINE VFP_VALID_PROP_CHARS		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + ;
-									"¡…Õ”⁄‹—·ÈÌÛ˙¸Ò" + ;
+									"√Å√â√ç√ì√ö√ú√ë√°√©√≠√≥√∫√º√±" + ;
 									"0123456789_"
 #DEFINE VFP_JSON_BEAUTIFY_MARGIN	2
 #DEFINE CRLF 						CHR(13)+CHR(10)
@@ -181,19 +181,19 @@
 	#DEFINE	VFP_JSON_MSG_005			"No se especifica el tipo de columna."
 	#DEFINE	VFP_JSON_MSG_006			"No se especifica la longitud de la columna."
 	#DEFINE	VFP_JSON_MSG_007			"El nombre de columna especificado ya existe."
-	#DEFINE	VFP_JSON_MSG_008			"Tipo de columna no v·lida."
+	#DEFINE	VFP_JSON_MSG_008			"Tipo de columna no v√°lida."
 	#DEFINE	VFP_JSON_MSG_009			"No se especifica la estructura de columnas."
 	#DEFINE	VFP_JSON_MSG_010			"El nombre del cursor no se especifica."
-	#DEFINE	VFP_JSON_MSG_011			"El nombre del cursor no est· en uso."
-	#DEFINE	VFP_JSON_MSG_012			"El esquema de cadenas no est· especificado."
-	#DEFINE	VFP_JSON_MSG_013			"La cadena JSON proporcionada no est· bien formateada (nombre de atributo no v·lido)"
+	#DEFINE	VFP_JSON_MSG_011			"El nombre del cursor no est√° en uso."
+	#DEFINE	VFP_JSON_MSG_012			"El esquema de cadenas no est√° especificado."
+	#DEFINE	VFP_JSON_MSG_013			"La cadena JSON proporcionada no est√° bien formateada (nombre de atributo no v√°lido)"
 	#DEFINE VFP_JSON_MSG_014			"Cadena JSON desequilibrada"
-	#DEFINE	VFP_JSON_MSG_015			"La cadena JSON proporcionada no est· bien formateada (nombre de variable no v·lido)"
-	#DEFINE VFP_JSON_MSG_016			"La cadena JSON proporcionada no representa un objeto de cursor v·lido"
-	#DEFINE VFP_JSON_MSG_017			"Par·metro que falta"
-	#DEFINE VFP_JSON_MSG_018			"Par·metro no v·lido"
-	#DEFINE VFP_JSON_MSG_019			"La cadena JSON suministrada no est· bien formateada"
-	#DEFINE VFP_JSON_MSG_020			"El esquema est· vacÌo"
+	#DEFINE	VFP_JSON_MSG_015			"La cadena JSON proporcionada no est√° bien formateada (nombre de variable no v√°lido)"
+	#DEFINE VFP_JSON_MSG_016			"La cadena JSON proporcionada no representa un objeto de cursor v√°lido"
+	#DEFINE VFP_JSON_MSG_017			"Par√°metro que falta"
+	#DEFINE VFP_JSON_MSG_018			"Par√°metro no v√°lido"
+	#DEFINE VFP_JSON_MSG_019			"La cadena JSON suministrada no est√° bien formateada"
+	#DEFINE VFP_JSON_MSG_020			"El esquema est√° vac√≠o"
 	#DEFINE VFP_JSON_MSG_021			"El JSON proporcionado no es un array de objetos"
 	#DEFINE VFP_JSON_MSG_022			"El alias ya existe"
 	#DEFINE VFP_JSON_MSG_023            "Objeto schema invalido"
@@ -1465,6 +1465,7 @@ DEFINE CLASS json AS Custom
 		ADDPROPERTY(oResult, "headers")
 		ADDPROPERTY(oResult, "contentType", "")
 		ADDPROPERTY(oResult, "statusCode", 0)
+        ADDPROPERTY(oResult, "statusText, "")
 		ADDPROPERTY(oResult, "raw", "")
 		ADDPROPERTY(oResult, "json", NULL)
 		ADDPROPERTY(oResult, "hasError", .T.)
@@ -1559,6 +1560,7 @@ DEFINE CLASS json AS Custom
 				ENDDO
 				IF oHTTP.readyState = 4 
 					oResult.statusCode = oHTTP.status
+                    oResult.statusText = oHTTP.statusText
 					oResult.Headers = oHTTP.getAllResponseHeaders()
 					oResult.contentType = oHTTP.getResponseHeader("Content-Type")
 					DO CASE
@@ -1649,7 +1651,7 @@ DEFINE CLASS json AS Custom
 	* Check if the given char is alphabetic
 	*
 	PROCEDURE isAlpha(pcChar)
-	 RETURN UPPER(pcChar) $ "ABCDEFGHIJKLMN—OPQRSTUVWXYZ_"
+	 RETURN UPPER(pcChar) $ "ABCDEFGHIJKLMN√ëOPQRSTUVWXYZ_"
 	ENDPROC
 	
 	
@@ -1888,55 +1890,55 @@ DEFINE CLASS json AS Custom
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&nbsp;", " ")
 	    
 	    * Currency symbols
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&cent;", "¢")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&pound;", "£")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&yen;", "•")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&euro;", "Ä")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&cent;", "¬¢")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&pound;", "¬£")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&yen;", "¬•")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&euro;", "¬Ä")
 	    
 	    * Special symbols
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&copy;", "©")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&reg;", "Æ")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&trade;", "ô")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&sect;", "ß")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&para;", "∂")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&middot;", "∑")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&hellip;", "Ö")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&mdash;", "ó")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&ndash;", "ñ")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&copy;", "¬©")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&reg;", "¬Æ")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&trade;", "¬ô")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&sect;", "¬ß")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&para;", "¬∂")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&middot;", "¬∑")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&hellip;", "¬Ö")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&mdash;", "¬ó")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&ndash;", "¬ñ")
 	    
 	    * Quotes and apostrophes
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&ldquo;", "ì")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&rdquo;", "î")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&lsquo;", "ë")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&rsquo;", "í")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&ldquo;", "¬ì")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&rdquo;", "¬î")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&lsquo;", "¬ë")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&rsquo;", "¬í")
 	    
 	    * Mathematical and other symbols
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&times;", "◊")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&divide;", "˜")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&sup1;", "π")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&sup2;", "≤")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&sup3;", "≥")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&frac12;", "Ω")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&frac14;", "º")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&frac34;", "æ")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&times;", "√ó")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&divide;", "√∑")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&sup1;", "¬π")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&sup2;", "¬≤")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&sup3;", "¬≥")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&frac12;", "¬Ω")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&frac14;", "¬º")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&frac34;", "¬æ")
 	    
 	    * Accented characters
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&aacute;", "·")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&eacute;", "È")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&iacute;", "Ì")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&oacute;", "Û")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&uacute;", "˙")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&ntilde;", "Ò")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Aacute;", "¡")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Eacute;", "…")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Iacute;", "Õ")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Oacute;", "”")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Uacute;", "⁄")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Ntilde;", "—")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&aacute;", "√°")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&eacute;", "√©")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&iacute;", "√≠")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&oacute;", "√≥")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&uacute;", "√∫")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&ntilde;", "√±")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Aacute;", "√Å")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Eacute;", "√â")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Iacute;", "√ç")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Oacute;", "√ì")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Uacute;", "√ö")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&Ntilde;", "√ë")
 	    
 	    * Greek letters
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&alpha;", "a")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&beta;", "ﬂ")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&beta;", "√ü")
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&gamma;", "?")
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&delta;", "d")
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&epsilon;", "e")
@@ -1946,7 +1948,7 @@ DEFINE CLASS json AS Custom
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&iota;", "?")
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&kappa;", "?")
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&lambda;", "?")
-	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&mu;", "µ")
+	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&mu;", "¬µ")
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&nu;", "?")
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&xi;", "?")
 	    lcDecodedHtml = STRTRAN(lcDecodedHtml, "&omicron;", "?")
@@ -2604,7 +2606,7 @@ if (typeof JSON2 !== "object") {
 
                 j = eval("(" + text + ")");
 
-// James Su·rez 26-11-2022
+// James Su√°rez 26-11-2022
 // add prototype item function 
 
 				function goodParse(obj){
