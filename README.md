@@ -189,7 +189,7 @@ This method allows to send information to a webservice and receive an answert in
 
 The full syntax of *httpPost()* is:
 
-    resp = JSON.httpPost(cUrl [,uData], [,cContentType] [,cHeaders] [,nTimeout[)
+    resp = JSON.httpPost(cUrl [,uData], [,cHeaders] [,nTimeout[)
     
 Multiple headers can be passed using CRLF to separate them. The *uData* parameter can be an string or an object.
 
@@ -212,6 +212,7 @@ The *resp* object contains the following properties:
     headers: string with the complete headers received from the server
     contentType:  content type of the response received
     statusCode: status code received (200, 404, 500, ...)
+	statusText: status text received (NOT FOUND, UNAUTHORIZED, ...)
     raw: raw response received in text format
     json:  response parsed as an JSON or XML object
     hasError:  TRUE if an error ocurred with the request
