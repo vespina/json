@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.41
+* Version: 1.42
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -245,7 +245,7 @@ DEFINE CLASS json AS Custom
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.40
+	 RETURN 1.42
 	ENDPROC
 	
     
@@ -376,7 +376,7 @@ DEFINE CLASS json AS Custom
 	 ENDIF
 	 nNestLevel = 1
 
- 
+
 	 FOR i = pnPos + 1 TO nLen
 	  *
 	  cChar = SUBSTR(pcJSON, i, 1)
@@ -513,6 +513,8 @@ DEFINE CLASS json AS Custom
 *!*		     CASE nMode = 2 
 *!*		          uBuff = uBuff + cChar
 	
+	     CASE nMode = 2 AND cChar = ":"      && Property-Value separator
+	     
 	     CASE nMode = 2 
 	 		  uBuff = uBuff + cChar
 	          IF cChar = "\" AND cChar = cLastChar   && Avoid an parsing error when last char in string is "\\"
@@ -922,14 +924,14 @@ DEFINE CLASS json AS Custom
 		      	    cValue = THIS.Stringify(uValue,,,,.T.)		        	
 		        _CATCH
 	       			THIS.lastError.initWithEx(ex)
-	       			cValue = ["<<"] + ex.MEssage + [>>"]
+	       			cValue = ["<<] + ex.MEssage + [>>"]
 	    		_ENDTRY
 		      ENDIF		      
 		      IF !ISNULL(cValue)
 		       IF THIS.useStrictNotation
 		        cProp = ["] + cProp + ["]
 		       ENDIF
-	 	       cJSON = cJSON + IIF(EMPTY(cJSON),"",", ") + cProp + [ : ] + cValue
+	 	       cJSON = cJSON + IIF(EMPTY(cJSON),"",",") + cProp + [:] + cValue
 	 	      ENDIF
 	         ENDFOR
 	         cJSON = "{" + cJSON + "}"
@@ -1465,7 +1467,7 @@ DEFINE CLASS json AS Custom
 		ADDPROPERTY(oResult, "headers")
 		ADDPROPERTY(oResult, "contentType", "")
 		ADDPROPERTY(oResult, "statusCode", 0)
-        ADDPROPERTY(oResult, "statusText, "")
+        ADDPROPERTY(oResult, "statusText", "")
 		ADDPROPERTY(oResult, "raw", "")
 		ADDPROPERTY(oResult, "json", NULL)
 		ADDPROPERTY(oResult, "hasError", .T.)

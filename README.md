@@ -1,7 +1,7 @@
 # JSON.PRG
 **100% VFP Json Parser & Utilities**
 
-Version: 1.40
+Version: 1.42
 
 Author: V. Espina / A. Ferreira
 
@@ -267,6 +267,7 @@ can generate SQL Server compatible JSON strings and can sucesfully parse SQL Ser
 
 |Date         |User|Description|
 |-------------|----|-----------|
+[28/07/2026|VES|Version 1.42. Solved bug that caused ":" separator to be added to values when useStrictNotation was true. Solved bug in Stringify that added an extra double quote when an object's property could not be evaluated. Changes in stringify to generate a smaller string removing unnecesary spaces |
 |25/06/2026|VES|Version 1.41. Solved a bug with invalid "phantom" properties when using fast parser more than once|
 |04/09/2026|VES|Version 1.40. Improved handling of non-valid characters on property names. |
 |03/05/2026|VES|Version 1.39. Methods getFastParser and js2fox refactored |
