@@ -1,7 +1,7 @@
 * JSON.PRG
 * 100% VFP Json Parser
 *
-* Version: 1.42
+* Version: 1.43
 * Author: V. Espina / A. Ferreira
 *
 *
@@ -245,7 +245,7 @@ DEFINE CLASS json AS Custom
 	HIDDEN oFPBuff                      && Buffer for data interchange with faster parser
 	
 	PROCEDURE version_access
-	 RETURN 1.42
+	 RETURN 1.43
 	ENDPROC
 	
     
@@ -513,7 +513,7 @@ DEFINE CLASS json AS Custom
 *!*		     CASE nMode = 2 
 *!*		          uBuff = uBuff + cChar
 	
-	     CASE nMode = 2 AND cChar = ":"      && Property-Value separator
+	     CASE nMode = 2 AND !lIsString AND cChar = ":"      && Property-Value separator
 	     
 	     CASE nMode = 2 
 	 		  uBuff = uBuff + cChar

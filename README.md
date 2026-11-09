@@ -267,6 +267,7 @@ can generate SQL Server compatible JSON strings and can sucesfully parse SQL Ser
 
 |Date         |User|Description|
 |-------------|----|-----------|
+|09/11/2026|VES|Version 1.43. Solved bug that caused ":" character being ignored inside string values |
 [28/07/2026|VES|Version 1.42. Solved bug that caused ":" separator to be added to values when useStrictNotation was true. Solved bug in Stringify that added an extra double quote when an object's property could not be evaluated. Changes in stringify to generate a smaller string removing unnecesary spaces |
 |25/06/2026|VES|Version 1.41. Solved a bug with invalid "phantom" properties when using fast parser more than once|
 |04/09/2026|VES|Version 1.40. Improved handling of non-valid characters on property names. |
